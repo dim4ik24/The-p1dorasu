@@ -1,0 +1,1157 @@
+
+/* Основні стилі */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #4fb3d9, #2a8cc8);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* Модалка авторизації */
+.auth-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.auth-content {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+}
+
+.auth-content h2 {
+    color: #2a8cc8;
+    margin-bottom: 30px;
+    font-size: 24px;
+}
+
+.auth-tabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.auth-tab {
+    flex: 1;
+    padding: 12px;
+    background: #f0f0f0;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 16px;
+}
+
+.auth-tab.active {
+    background: #2a8cc8;
+    color: white;
+}
+
+.auth-form {
+    display: none;
+}
+
+.auth-form.active {
+    display: block;
+}
+
+.auth-form input {
+    width: 100%;
+    padding: 15px;
+    margin: 10px 0;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    font-size: 16px;
+}
+
+.auth-form input:focus {
+    border-color: #2a8cc8;
+    outline: none;
+}
+
+.auth-btn {
+    width: 100%;
+    padding: 15px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 10px;
+    background: #2a8cc8;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.auth-btn:hover {
+    background: #1f7ba6;
+    transform: translateY(-2px);
+}
+
+.auth-btn.telegram {
+    background: #0088cc;
+}
+
+.auth-btn.telegram:hover {
+    background: #006ba3;
+}
+
+.auth-form p {
+    margin: 15px 0;
+    color: #666;
+}
+
+/* Контейнер гри */
+.game-container {
+    width: 100%;
+    min-height: 100vh;
+    position: relative;
+    background: linear-gradient(135deg, #4fb3d9, #2a8cc8);
+}
+
+/* Хедер */
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: white;
+    font-weight: bold;
+}
+
+.logout-btn {
+    padding: 8px 15px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.logout-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.balance-info {
+    text-align: right;
+    color: white;
+}
+
+.balance {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.free-spins {
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+/* Ігрове поле */
+.game-board {
+    position: relative;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    min-height: calc(100vh - 80px);
+}
+
+/* Будівля */
+.building {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #1e40af, #3b82f6);
+    width: 150px;
+    height: 200px;
+    border-radius: 10px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.building-title {
+    color: #fbbf24;
+    font-size: 32px;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Персонажі */
+.characters {
+    position: absolute;
+    top: 100px;
+    left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.character {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Слот машина */
+.slot-machine {
+    position: relative;
+    margin: 250px auto 50px;
+    width: 100%;
+    max-width: 400px;
+}
+
+.slot-display {
+    background: rgba(30, 64, 175, 0.9);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+}
+
+.reels {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.reel {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.symbol {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.symbol::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/* Символи */
+.symbol.symbol-a::before { background-image: url('../images/symbols/symbol_a.png'); }
+.symbol.symbol-10::before { background-image: url('../images/symbols/symbol_10.png'); }
+.symbol.symbol-j::before { background-image: url('../images/symbols/symbol_j.png'); }
+.symbol.symbol-k::before { background-image: url('../images/symbols/symbol_k.png'); }
+.symbol.symbol-q::before { background-image: url('../images/symbols/symbol_q.png'); }
+.symbol.symbol-dog1::before { background-image: url('../images/symbols/symbol_dog1.png'); }
+.symbol.symbol-dog2::before { background-image: url('../images/symbols/symbol_dog2.png'); }
+.symbol.symbol-dog3::before { background-image: url('../images/symbols/symbol_dog3.png'); }
+.symbol.symbol-dog4::before { background-image: url('../images/symbols/symbol_dog4.png'); }
+.symbol.symbol-bone::before { background-image: url('../images/symbols/symbol_bone.png'); }
+
+.symbol.spinning {
+    animation: symbolSpin 0.1s infinite linear;
+}
+
+@keyframes symbolSpin {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-180px); }
+}
+
+.symbol.winning {
+    animation: winPulse 1s infinite;
+    box-shadow: 0 0 20px #fbbf24;
+}
+
+@keyframes winPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* Літак */
+.airplane {
+    position: absolute;
+    bottom: -80px;
+    left: -100px;
+    width: 120px;
+    height: 80px;
+    background: url('../images/airplane.png') no-repeat center;
+    background-size: contain;
+    transition: all 2s ease-in-out;
+}
+
+.airplane-number {
+    position: absolute;
+    top: 20px;
+    left: 10px;
+    background: white;
+    color: #2a8cc8;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.airplane.flying {
+    left: calc(100% + 100px);
+    transform: translateY(-200px);
+}
+
+/* Панель управління */
+.control-panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 20px;
+    border-radius: 15px;
+    margin-top: 20px;
+}
+
+.bet-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: white;
+    font-weight: bold;
+}
+
+.bet-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background: #fbbf24;
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.bet-btn:hover {
+    background: #f59e0b;
+    transform: scale(1.1);
+}
+
+.spin-controls {
+    display: flex;
+    gap: 15px;
+}
+
+.spin-btn, .auto-btn {
+    padding: 15px 30px;
+    border: none;
+    border-radius: 50px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.spin-btn {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+}
+
+.spin-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.6);
+}
+
+.spin-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.auto-btn {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: white;
+    box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4);
+}
+
+.auto-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.6);
+}
+
+.auto-btn.active {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.settings {
+    display: flex;
+    gap: 10px;
+}
+
+.settings-btn, .sound-btn {
+    width: 50px;
+    height: 50px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.stats-btn {
+    width: 50px;
+    height: 50px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.settings-btn:hover, .sound-btn:hover, .stats-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+/* Статистична модалка */
+.stats-content {
+    max-width: 600px;
+    width: 95%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.stats-tabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.stats-tab {
+    flex: 1;
+    padding: 12px;
+    background: #f0f0f0;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 14px;
+}
+
+.stats-tab.active {
+    background: #2a8cc8;
+    color: white;
+}
+
+.stats-section {
+    display: none;
+}
+
+.stats-section.active {
+    display: block;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.stat-item {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2a8cc8;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #666;
+    text-transform: uppercase;
+}
+
+/* Історія ігор */
+.history-controls {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.export-btn {
+    padding: 8px 16px;
+    margin: 0 5px;
+    background: #10b981;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.export-btn:hover {
+    background: #059669;
+    transform: translateY(-2px);
+}
+
+.history-list {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+}
+
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s;
+}
+
+.history-item:hover {
+    background-color: #f8f9fa;
+}
+
+.history-item:last-child {
+    border-bottom: none;
+}
+
+.history-date {
+    font-size: 12px;
+    color: #666;
+}
+
+.history-bet {
+    font-weight: bold;
+    color: #333;
+}
+
+.history-win {
+    font-weight: bold;
+}
+
+.history-win.positive {
+    color: #10b981;
+}
+
+.history-win.negative {
+    color: #ef4444;
+}
+
+/* Досягнення */
+.achievements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.achievement-item {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s;
+}
+
+.achievement-item.unlocked {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    color: white;
+    transform: scale(1.02);
+    box-shadow: 0 5px 20px rgba(251, 191, 36, 0.3);
+}
+
+.achievement-icon {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.achievement-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.achievement-description {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+.achievement-date {
+    font-size: 12px;
+    margin-top: 10px;
+    opacity: 0.7;
+}
+
+/* Адаптивність для статистики */
+@media (max-width: 768px) {
+    .stats-content {
+        padding: 20px 15px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    
+    .stat-item {
+        padding: 15px 10px;
+    }
+    
+    .stat-value {
+        font-size: 20px;
+    }
+    
+    .achievements-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats-tabs {
+        flex-direction: column;
+    }
+    
+    .stats-tab {
+        border-radius: 0;
+    }
+}
+
+/* Інформація про виграш */
+.win-info {
+    text-align: center;
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* Модалки */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    position: relative;
+}
+
+.close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #999;
+}
+
+.close:hover {
+    color: #333;
+}
+
+.modal-content h3 {
+    color: #2a8cc8;
+    margin-bottom: 20px;
+}
+
+.modal-content input {
+    width: 100%;
+    padding: 15px;
+    margin: 15px 0;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    font-size: 16px;
+}
+
+.deposit-btn {
+    width: 100%;
+    padding: 15px;
+    margin: 15px 0;
+    border: none;
+    border-radius: 10px;
+    background: #10b981;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.deposit-btn:hover {
+    background: #059669;
+    transform: translateY(-2px);
+}
+
+.settings-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+
+.settings-item label {
+    font-weight: bold;
+    color: #333;
+}
+
+.settings-item input {
+    margin: 0;
+    width: 150px;
+}
+
+/* Бонус модалка */
+.bonus-content {
+    background: linear-gradient(135deg, #1e40af, #3b82f6);
+    color: white;
+    text-align: center;
+}
+
+.bonus-content h2 {
+    font-size: 32px;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.bonus-content h3 {
+    color: #fbbf24;
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+.bonus-planes {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 20px;
+    font-size: 48px;
+    animation: planeFly 2s infinite ease-in-out;
+}
+
+@keyframes planeFly {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Адаптивність */
+@media (max-width: 768px) {
+    .game-board {
+        padding: 10px;
+    }
+    
+    .building {
+        width: 100px;
+        height: 150px;
+        top: 10px;
+        right: 10px;
+    }
+    
+    .building-title {
+        font-size: 24px;
+    }
+    
+    .characters {
+        left: 10px;
+        top: 80px;
+    }
+    
+    .character {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .slot-machine {
+        margin: 200px auto 30px;
+    }
+    
+    .symbol {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+    }
+    
+    .control-panel {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px;
+    }
+    
+    .spin-btn, .auto-btn {
+        padding: 12px 25px;
+        font-size: 16px;
+    }
+    
+    .auth-content {
+        padding: 30px 20px;
+    }
+}
+
+/* Анімації завантаження */
+.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Ефекти частинок для виграшу */
+.particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 999;
+    overflow: hidden;
+}
+
+.particle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: radial-gradient(circle, #fbbf24, #f59e0b);
+    border-radius: 50%;
+    box-shadow: 0 0 6px #fbbf24;
+    animation: particleFall 3s linear infinite;
+}
+
+@keyframes particleFall {
+    0% {
+        transform: translateY(-100vh) rotate(0deg) scale(0);
+        opacity: 1;
+    }
+    10% {
+        transform: translateY(-90vh) rotate(36deg) scale(1);
+        opacity: 1;
+    }
+    90% {
+        transform: translateY(90vh) rotate(324deg) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(360deg) scale(0);
+        opacity: 0;
+    }
+}
+
+/* Покращення слот-машини */
+.slot-display {
+    background: rgba(30, 64, 175, 0.95);
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 
+        0 15px 35px rgba(0, 0, 0, 0.3),
+        inset 0 2px 5px rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.reels {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    background: linear-gradient(145deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2));
+    padding: 15px;
+    border-radius: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: visible;
+}
+
+/* Покращення символів */
+.symbol {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 
+        0 4px 8px rgba(0, 0, 0, 0.3),
+        inset 0 1px 2px rgba(255, 255, 255, 0.2);
+}
+
+.symbol:hover {
+    transform: scale(1.05);
+    box-shadow: 
+        0 6px 12px rgba(0, 0, 0, 0.4),
+        inset 0 1px 2px rgba(255, 255, 255, 0.3);
+}
+
+/* Спеціальні ефекти для кістки (скаттер) */
+.symbol.symbol-bone {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    animation: boneSpecial 2s infinite ease-in-out;
+}
+
+@keyframes boneSpecial {
+    0%, 100% { 
+        box-shadow: 
+            0 4px 8px rgba(0, 0, 0, 0.3),
+            0 0 15px rgba(139, 92, 246, 0.5);
+    }
+    50% { 
+        box-shadow: 
+            0 6px 12px rgba(0, 0, 0, 0.4),
+            0 0 25px rgba(139, 92, 246, 0.8);
+        transform: scale(1.05);
+    }
+}
+
+/* Покращення анімації виграшу */
+.symbol.winning {
+    animation: winGlow 1.5s infinite;
+    box-shadow: 
+        0 0 20px #fbbf24, 
+        0 0 40px #fbbf24, 
+        0 0 60px #fbbf24,
+        0 8px 16px rgba(0, 0, 0, 0.4);
+    border-color: #fbbf24;
+    z-index: 10;
+    position: relative;
+}
+
+@keyframes winGlow {
+    0%, 100% { 
+        transform: scale(1); 
+        box-shadow: 
+            0 0 20px #fbbf24, 
+            0 0 40px #fbbf24,
+            0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+    25% { 
+        transform: scale(1.05); 
+        box-shadow: 
+            0 0 30px #fbbf24, 
+            0 0 60px #fbbf24, 
+            0 0 80px #fbbf24,
+            0 6px 12px rgba(0, 0, 0, 0.4);
+    }
+    50% { 
+        transform: scale(1.1); 
+        box-shadow: 
+            0 0 40px #fbbf24, 
+            0 0 80px #fbbf24, 
+            0 0 100px #fbbf24,
+            0 8px 16px rgba(0, 0, 0, 0.5);
+    }
+    75% { 
+        transform: scale(1.05); 
+        box-shadow: 
+            0 0 30px #fbbf24, 
+            0 0 60px #fbbf24, 
+            0 0 80px #fbbf24,
+            0 6px 12px rgba(0, 0, 0, 0.4);
+    }
+}
+
+/* Виграшна лінія */
+.winning-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(251, 191, 36, 0.3) 10%,
+        #fbbf24 30%, 
+        #ffffff 50%, 
+        #fbbf24 70%, 
+        rgba(251, 191, 36, 0.3) 90%,
+        transparent 100%);
+    z-index: 15;
+    animation: lineGlow 1s infinite;
+    border-radius: 2px;
+    box-shadow: 0 0 10px #fbbf24;
+}
+
+@keyframes lineGlow {
+    0%, 100% { 
+        opacity: 0.7; 
+        transform: scaleX(0.8);
+        box-shadow: 0 0 10px #fbbf24;
+    }
+    50% { 
+        opacity: 1; 
+        transform: scaleX(1.2);
+        box-shadow: 0 0 20px #fbbf24, 0 0 30px #fbbf24;
+    }
+}
+
+/* Покращення бонусної модалки */
+.bonus-content {
+    background: linear-gradient(135deg, #1e40af, #3b82f6);
+    color: white;
+    text-align: center;
+    border: 3px solid #fbbf24;
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.4),
+        0 0 30px rgba(251, 191, 36, 0.3);
+    animation: bonusEntry 0.5s ease-out;
+}
+
+@keyframes bonusEntry {
+    0% {
+        transform: scale(0.5) rotate(-10deg);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.1) rotate(5deg);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+.bonus-content h2 {
+    font-size: 36px;
+    margin-bottom: 20px;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+    animation: bonusTextGlow 2s infinite;
+}
+
+@keyframes bonusTextGlow {
+    0%, 100% { 
+        text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+    }
+    50% { 
+        text-shadow: 
+            3px 3px 6px rgba(0, 0, 0, 0.5),
+            0 0 20px #fbbf24,
+            0 0 30px #fbbf24;
+    }
+}
+
+.bonus-content h3 {
+    color: #fbbf24;
+    font-size: 28px;
+    margin-bottom: 15px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.bonus-planes {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 25px;
+    font-size: 56px;
+    animation: planeFly 2s infinite ease-in-out;
+}
+
+@keyframes planeFly {
+    0%, 100% { 
+        transform: translateY(0) rotate(0deg); 
+    }
+    25% { 
+        transform: translateY(-15px) rotate(-5deg); 
+    }
+    50% { 
+        transform: translateY(-10px) rotate(0deg); 
+    }
+    75% { 
+        transform: translateY(-15px) rotate(5deg); 
+    }
+}

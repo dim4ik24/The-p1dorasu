@@ -1,0 +1,3423 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NAU - The Pidorasu Slot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            user-select: none;
+            height: 100vh;
+            background: linear-gradient(to bottom, #4FC3F7 0%, #29B6F6 40%, #4CAF50 40%, #388E3C 100%);
+        }
+
+        /* ========= СИСТЕМА АВТОРИЗАЦІЇ ========= */
+        .auth-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 20000;
+        }
+
+        .auth-modal.hidden {
+            display: none;
+        }
+
+        .auth-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+            animation: fadeInScale 0.5s ease-out;
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .auth-content h2 {
+            color: #2a8cc8;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        .warning-box {
+            background: #ffebee;
+            border: 2px solid #f44336;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .warning-box h3 {
+            color: #c62828;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .warning-box ul {
+            list-style: none;
+            color: #d32f2f;
+            font-size: 14px;
+        }
+
+        .warning-box li {
+            margin: 5px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .warning-box li:before {
+            content: "⚠";
+            position: absolute;
+            left: 0;
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 12px;
+            background: #f0f0f0;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 16px;
+        }
+
+        .auth-tab.active {
+            background: #2a8cc8;
+            color: white;
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .auth-form input {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .auth-form input:focus {
+            border-color: #2a8cc8;
+            outline: none;
+        }
+
+        .age-checkbox {
+            display: flex;
+            align-items: flex-start;
+            margin: 15px 0;
+            text-align: left;
+        }
+
+        .age-checkbox input {
+            margin-right: 10px;
+            margin-top: 3px;
+            width: 20px;
+            height: 20px;
+        }
+
+        .age-checkbox label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 10px;
+            background: #2a8cc8;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+
+        .auth-btn:hover:not(:disabled) {
+            background: #1f7ba6;
+            transform: translateY(-2px);
+        }
+
+        .auth-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .auth-btn.demo {
+            background: #4CAF50;
+        }
+
+        .auth-btn.demo:hover {
+            background: #45a049;
+        }
+
+        .error-message, .success-message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #f44336;
+        }
+
+        .success-message {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #4caf50;
+        }
+
+        /* Панель користувача */
+        .user-panel {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(25, 118, 210, 0.95);
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 2px solid #FFD700;
+            z-index: 100;
+            display: none;
+            align-items: center;
+            gap: 15px;
+            color: white;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        .user-panel.active {
+            display: flex;
+        }
+
+        .user-name {
+            font-weight: bold;
+            color: #FFD700;
+        }
+
+        .logout-btn {
+            padding: 8px 16px;
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: linear-gradient(45deg, #d32f2f, #c62828);
+            transform: translateY(-2px);
+        }
+
+        /* ========= ОСНОВНІ СТИЛІ ГРИ ========= */
+        .game-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            background: linear-gradient(to bottom, #4FC3F7 0%, #29B6F6 40%, #4CAF50 40%, #388E3C 100%);
+            display: none;
+        }
+
+        .game-container.active {
+            display: block;
+        }
+
+        /* Хмари */
+        .cloud {
+            position: absolute;
+            width: 80px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50px;
+            animation: float-cloud 25s linear infinite;
+            z-index: 1;
+        }
+
+        .cloud::before, .cloud::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50px;
+        }
+
+        .cloud::before {
+            width: 50px;
+            height: 50px;
+            top: -25px;
+            left: 10px;
+        }
+
+        .cloud::after {
+            width: 60px;
+            height: 30px;
+            top: -15px;
+            right: 10px;
+        }
+
+        .cloud1 { top: 8%; left: -100px; animation-delay: 0s; }
+        .cloud2 { top: 15%; left: -120px; animation-delay: -8s; }
+        .cloud3 { top: 25%; left: -140px; animation-delay: -16s; }
+
+        @keyframes float-cloud {
+            from { transform: translateX(0); }
+            to { transform: translateX(calc(100vw + 200px)); }
+        }
+
+        /* Фоновий пейзаж з містом */
+        .city-background {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            z-index: 1;
+        }
+
+        .building-bg {
+            position: absolute;
+            bottom: 0;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .building1 { 
+            right: 7%; 
+            width: 450px; 
+            height: 1100px; 
+            background-image: url('images/building1.png');
+        }
+        .building2 { 
+            right: 3%; 
+            width: 360px; 
+            height: 900px; 
+            background-image: url('images/building2.png');
+        }
+
+        .main-tower {
+            position: absolute;
+            bottom: 0;
+            background: linear-gradient(145deg, #1976D2, #0D47A1);
+            border-radius: 15px 15px 0 0;
+            z-index: 2;
+            box-shadow: 0 0 50px rgba(25, 118, 210, 0.4);
+        }
+
+        /* Літак з текстурою */
+        .flying-plane {
+            position: absolute;
+            bottom: 50%;
+            left: 10%;
+            width: 250px;
+            height: 120px;
+            background-image: url('images/airplane.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            animation: crash-into-far-right-buildings 8s ease-in-out infinite;
+            z-index: 3;
+            filter: drop-shadow(0 6px 12px rgba(0,0,0,0.4));
+            transform-origin: center;
+        }
+
+        @keyframes crash-into-far-right-buildings {
+            0% { 
+                transform: translateX(-50px) translateY(30px) rotate(-10deg) scale(0.8);
+                opacity: 0.8;
+            }
+            20% { 
+                transform: translateX(15vw) translateY(15px) rotate(-5deg) scale(0.9);
+                opacity: 1;
+            }
+            50% { 
+                transform: translateX(40vw) translateY(0px) rotate(0deg) scale(1);
+                opacity: 1;
+            }
+            75% { 
+                transform: translateX(65vw) translateY(-10px) rotate(15deg) scale(1.1);
+                opacity: 1;
+            }
+            85% { 
+                transform: translateX(75vw) translateY(-20px) rotate(25deg) scale(1.2);
+                opacity: 0.8;
+            }
+            90% { 
+                transform: translateX(80vw) translateY(-25px) rotate(35deg) scale(1.3);
+                opacity: 0.4;
+            }
+            100% { 
+                transform: translateX(85vw) translateY(-30px) rotate(45deg) scale(0.5);
+                opacity: 0;
+            }
+        }
+
+        /* Ефекти вибуху */
+        .explosion {
+            position: absolute;
+            right: 10%;
+            bottom: 50%;
+            width: 220px;
+            height: 220px;
+            background-image: url('images/explosion.gif');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            animation: building-explosion 8s ease-in-out infinite;
+            z-index: 4;
+            filter: brightness(1.3) contrast(1.2) saturate(1.1);
+        }
+
+        @keyframes building-explosion {
+            0%, 75% { 
+                opacity: 0; 
+                transform: scale(0) rotate(0deg); 
+            }
+            80% { 
+                opacity: 0.3; 
+                transform: scale(0.5) rotate(5deg); 
+            }
+            85% { 
+                opacity: 1; 
+                transform: scale(1.2) rotate(-3deg); 
+            }
+            88% { 
+                opacity: 1; 
+                transform: scale(1.6) rotate(2deg); 
+            }
+            92% { 
+                opacity: 0.9; 
+                transform: scale(2) rotate(-1deg); 
+            }
+            96% { 
+                opacity: 0.6; 
+                transform: scale(2.3) rotate(1deg); 
+            }
+            100% { 
+                opacity: 0; 
+                transform: scale(2.5) rotate(0deg); 
+            }
+        }
+
+        .explosion-2 {
+            position: absolute;
+            right: 6%;
+            bottom: 45%;
+            width: 180px;
+            height: 180px;
+            background-image: url('images/explosion.gif');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            animation: secondary-explosion 8s ease-in-out infinite;
+            z-index: 4;
+            filter: brightness(1.4) contrast(1.3) hue-rotate(30deg);
+        }
+
+        @keyframes secondary-explosion {
+            0%, 80% { 
+                opacity: 0; 
+                transform: scale(0) rotate(0deg); 
+            }
+            85% { 
+                opacity: 0.8; 
+                transform: scale(0.8) rotate(-5deg); 
+            }
+            90% { 
+                opacity: 1; 
+                transform: scale(1.3) rotate(3deg); 
+            }
+            94% { 
+                opacity: 0.7; 
+                transform: scale(1.8) rotate(-2deg); 
+            }
+            98% { 
+                opacity: 0.3; 
+                transform: scale(2.2) rotate(1deg); 
+            }
+            100% { 
+                opacity: 0; 
+                transform: scale(2.5) rotate(0deg); 
+            }
+        }
+
+        /* Основний слот */
+        .slot-machine {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+            border: 4px solid #FFD700;
+            z-index: 10;
+            min-width: 50;
+            background: rgba(25, 118, 210, 0.9);
+        }
+
+        /* Лого */
+        .slot-logo {
+            width: 600px;                           
+            height: 250px;                          
+            margin: 0 auto 20px auto;               
+            position: relative;                     
+            top: 30px;                              
+            left: 0px;                             
+            background-image: url('images/logo.png'); 
+            background-size: contain;               
+            background-repeat: no-repeat;           
+            background-position: center;            
+            z-index: 5;                            
+            opacity: 1;                            
+            transform: scale(1);                   
+            transition: all 0.3s ease;             
+        }
+
+        /* Ігрове поле */
+        .reels-container {
+            display: grid;
+            grid-template-columns: repeat(5, 130px);
+            grid-template-rows: repeat(3, 130px);
+            gap: 5px;
+            margin: 20px auto;
+            background-image: url('images/reel_background.png');
+            background-size: 135% 142%;
+            background-repeat: no-repeat;
+            background-position: 50% 98% ;
+            padding: 25px;
+            border-radius: 20px;
+            border: 4px solid #1976D2;
+            position: relative;
+            width: 700px;
+            height: 440px;
+            justify-content: center;
+            align-content: center;
+        }
+
+        .reel-cell {
+            width: 130px;
+            height: 130px;
+            background: linear-gradient(145deg, #2196F3, #1976D2);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid #FFD700;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            background-size: 85%;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .reel-cell.spinning {
+            animation: spinReel 0.15s linear infinite;
+            transform-style: preserve-3d;
+        }
+
+        .reel-cell.winning-symbol {
+            animation: winSymbolPulse 1s ease-in-out infinite;
+            box-shadow: 0 0 30px #FFD700, inset 0 0 20px rgba(255, 215, 0, 0.4);
+            z-index: 15;
+            border: 4px solid #FFD700;
+            transform: scale(1.05);
+        }
+
+        @keyframes spinReel {
+            0% { transform: rotateY(0deg) scale(1); }
+            25% { transform: rotateY(90deg) scale(0.8); }
+            50% { transform: rotateY(180deg) scale(1); }
+            75% { transform: rotateY(270deg) scale(0.8); }
+            100% { transform: rotateY(360deg) scale(1); }
+        }
+
+        @keyframes winSymbolPulse {
+            0%, 100% { 
+                transform: scale(1.05);
+                box-shadow: 0 0 30px #FFD700, inset 0 0 20px rgba(255, 215, 0, 0.4);
+            }
+            50% { 
+                transform: scale(1.15);
+                box-shadow: 0 0 45px #FFF700, inset 0 0 30px rgba(255, 255, 0, 0.6);
+            }
+        }
+
+        /* Контролі */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(25, 118, 210, 0.8);
+            border-radius: 15px;
+            border: 2px solid #FFD700;
+            position: relative;
+        }
+
+        .info-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            font-family: 'Courier New', monospace;
+            color: white;
+            font-size: 14px;
+        }
+
+        .balance {
+            color: #FFFFFF;
+            font-size: 16px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .bet {
+            color: #FFFFFF;
+            font-size: 14px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .win {
+            color: #FFFFFF;
+            font-size: 14px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .free-spins-info {
+            color: #FFFFFF;
+            font-size: 14px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 5px #E91E63; }
+            50% { text-shadow: 0 0 15px #E91E63, 0 0 25px #E91E63; }
+        }
+
+        .control-btn {
+            width: 90px;
+            height: 90px;
+            border: none;
+            border-radius: 50%;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+            position: relative;
+            background-color: transparent;
+            pointer-events: auto;
+            z-index: 10;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+        }
+
+        .control-btn:active {
+            transform: translateY(1px) scale(0.95);
+        }
+
+        .btn-spin {
+            background-image: url('images/btn_spin.png');
+        }
+
+        .btn-auto {
+            background-image: url('images/btn_spin_auto.png');
+        }
+
+        .btn-auto.active {
+            background-image: url('images/btn_spin_auto_stop.png');
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        .btn-settings {
+            background-image: url('images/btn_settings.png');
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* Повноекранне бонусне вікно */
+        .bonus-intro-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            animation: modalFadeIn 0.5s ease-out;
+        }
+
+        .bonus-intro-content {
+            width: 66%;
+            height: 66%;
+            background: url('images/Bonuska.png') center/contain no-repeat;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            position: relative;
+            padding-bottom: 100px;
+        }
+
+        .bonus-intro-text {
+            color: #FFD700;
+            font-size: 36px;
+            font-weight: bold;
+            text-shadow: 4px 4px 8px rgba(0,0,0,0.8);
+            text-align: center;
+            margin-bottom: 20px;
+            animation: textGlow 2s ease-in-out infinite;
+        }
+
+        .bonus-intro-spins {
+            color: #FFFFFF;
+            font-size: 36px;
+            font-weight: bold;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.8);
+            margin-bottom: 50px;
+        }
+
+        .bonus-continue-btn {
+            padding: 20px 50px;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .bonus-continue-btn:hover {
+            background: linear-gradient(45deg, #45a049, #4CAF50);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.7);
+        }
+
+        /* Sticky multiplier effects */
+        .reel-cell.sticky-multiplier {
+            border: 4px solid #FF6B35;
+            box-shadow: 0 0 20px #FF6B35, inset 0 0 15px rgba(255, 107, 53, 0.3);
+            animation: stickyMultiplierGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes stickyMultiplierGlow {
+            0%, 100% { 
+                box-shadow: 0 0 20px #FF6B35, inset 0 0 15px rgba(255, 107, 53, 0.3);
+            }
+            50% { 
+                box-shadow: 0 0 30px #FF6B35, inset 0 0 25px rgba(255, 107, 53, 0.5);
+            }
+        }
+
+        /* Модальне вікно результатів бонусу */
+        .bonus-result-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            animation: modalFadeIn 0.5s ease-out;
+        }
+
+        .bonus-result-content {
+            width: 60%;
+            height: 60%;
+            background: url('images/zanos.png') center/contain no-repeat;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 50px;
+        }
+
+        .bonus-result-text {
+            color: #FFD700;
+            font-size: 32px;
+            font-weight: bold;
+            text-shadow: 4px 4px 8px rgba(0,0,0,0.8);
+            text-align: center;
+            margin-bottom: 20px;
+            animation: textGlow 2s ease-in-out infinite;
+        }
+
+        .bonus-result-amount {
+            color: #FFFFFF;
+            font-size: 48px;
+            font-weight: bold;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.8);
+            margin-bottom: 30px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .bonus-reel-highlight {
+            display: none;
+        }
+        
+        .settings-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: modalFadeIn 0.5s ease-out;
+        }
+
+        .settings-content {
+            background: linear-gradient(145deg, #1976D2, #0D47A1);
+            padding: 30px;
+            border-radius: 25px;
+            text-align: center;
+            color: white;
+            border: 4px solid #FFD700;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8);
+            position: relative;
+            min-width: 500px;
+            max-width: 600px;
+            animation: modalSlideIn 0.6s ease-out;
+        }
+
+        .settings-content h2 {
+            margin: 0 0 25px 0;
+            font-size: 28px;
+            color: #FFD700;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.8);
+        }
+
+        .settings-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            border: 1px solid rgba(255,215,0,0.3);
+        }
+
+        .settings-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 15px 0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .settings-btn {
+            padding: 10px 20px;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            min-width: 120px;
+        }
+
+        .settings-btn:hover {
+            background: linear-gradient(45deg, #45a049, #4CAF50);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+
+        .settings-btn:disabled {
+            background: linear-gradient(45deg, #666, #555);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .settings-btn.music-off {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+        }
+
+        .settings-btn.music-off:hover {
+            background: linear-gradient(45deg, #d32f2f, #f44336);
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .settings-slider {
+            flex: 1;
+            height: 8px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 5px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .settings-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #FFD700;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+
+        .slider-value {
+            min-width: 60px;
+            color: #FFD700;
+            font-weight: bold;
+        }
+
+        .buy-bonus-btn {
+            background: linear-gradient(45deg, #FF9800, #F57C00);
+            color: white;
+            padding: 15px 25px;
+            font-size: 16px;
+            border-radius: 25px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .buy-bonus-btn:hover {
+            background: linear-gradient(45deg, #F57C00, #FF9800);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+        }
+
+        .close-settings {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: #FFD700;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .close-settings:hover {
+            transform: scale(1.2);
+            text-shadow: 0 0 10px #FFD700;
+        }
+
+        /* Модальне вікно правил гри */
+        .rules-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2500;
+            animation: modalFadeIn 0.5s ease-out;
+        }
+
+        .rules-content {
+            position: relative;
+            width: 90%;
+            max-width: 800px;
+            height: 90%;
+            max-height: 600px;
+            background: #1976D2;
+            border-radius: 25px;
+            border: 4px solid #FFD700;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: modalSlideIn 0.6s ease-out;
+        }
+
+        .rules-header {
+            width: 100%;
+            text-align: center;
+            padding: 20px;
+            border-bottom: 2px solid #FFD700;
+            position: relative;
+        }
+
+        .rules-title {
+            color: #FFD700;
+            font-size: 28px;
+            font-weight: bold;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.8);
+            margin: 0;
+        }
+
+        .close-rules {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: #FFD700;
+            font-size: 28px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-rules:hover {
+            transform: scale(1.2);
+            text-shadow: 0 0 15px #FFD700;
+        }
+
+        .rules-image-container {
+            flex: 1;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 20px;
+        }
+
+        .rules-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .rules-navigation {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            width: 100%;
+        }
+
+        .nav-btn {
+            padding: 12px 25px;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+            min-width: 120px;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: linear-gradient(45deg, #45a049, #4CAF50);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+        }
+
+        .nav-btn:disabled {
+            background: linear-gradient(45deg, #666, #555);
+            cursor: not-allowed;
+            opacity: 0.6;
+            transform: none;
+        }
+
+        .page-indicator {
+            color: #FFD700;
+            font-size: 18px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .bonus-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            animation: modalFadeIn 0.5s ease-out;
+        }
+
+        .modal-content {
+            background: url('images/Bonuska.png') center/cover;
+            padding: 50px;
+            border-radius: 25px;
+            text-align: center;
+            color: white;
+            border: 4px solid #FFD700;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8);
+            position: relative;
+            min-width: 400px;
+            animation: modalSlideIn 0.6s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes modalSlideIn {
+            from { 
+                transform: translateY(-100px) scale(0.8);
+                opacity: 0;
+            }
+            to { 
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-content h2 {
+            margin: 0 0 25px 0;
+            font-size: 36px;
+            color: #FFD700;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.8);
+            animation: textGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes textGlow {
+            0%, 100% { text-shadow: 3px 3px 6px rgba(0,0,0,0.8); }
+            50% { text-shadow: 0 0 20px #FFD700, 3px 3px 6px rgba(0,0,0,0.8); }
+        }
+
+        .modal-content p {
+            font-size: 20px;
+            margin: 15px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+        }
+
+        .close-modal {
+            margin-top: 25px;
+            padding: 15px 40px;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+
+        .close-modal:hover {
+            background: linear-gradient(45deg, #45a049, #4CAF50);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        }
+
+        /* Область для повідомлень */
+        .message-area {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(25, 118, 210, 0.9);
+            border-radius: 10px;
+            border: 2px solid #FFD700;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            text-align: center;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 9999;
+            position: relative;
+        }
+
+        .message-area.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .message-area.error {
+            background: rgba(244, 67, 54, 0.9);
+            border-color: #FF5722;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        .message-area.success {
+            background: rgba(76, 175, 80, 0.9);
+            border-color: #4CAF50;
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* Модальне вікно депозиту */
+        .deposit-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2500;
+            animation: modalFadeIn 0.5s ease-out;
+        }
+
+        .deposit-content {
+            background: linear-gradient(145deg, #1976D2, #0D47A1);
+            padding: 40px;
+            border-radius: 25px;
+            text-align: center;
+            color: white;
+            border: 4px solid #FFD700;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8);
+            position: relative;
+            min-width: 400px;
+            max-width: 500px;
+            animation: modalSlideIn 0.6s ease-out;
+        }
+
+        .deposit-content h2 {
+            margin: 0 0 25px 0;
+            font-size: 28px;
+            color: #FFD700;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.8);
+            animation: textGlow 2s ease-in-out infinite;
+        }
+
+        .deposit-content p {
+            font-size: 18px;
+            margin-bottom: 25px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+        }
+
+        .close-deposit {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: #FFD700;
+            font-size: 28px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-deposit:hover {
+            transform: scale(1.2);
+            text-shadow: 0 0 15px #FFD700;
+        }
+
+        .deposit-input-container {
+            position: relative;
+            margin: 25px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .deposit-input {
+            padding: 15px 20px;
+            font-size: 24px;
+            border: 3px solid #FFD700;
+            border-radius: 15px;
+            background: rgba(255,255,255,0.9);
+            color: #1976D2;
+            text-align: center;
+            width: 200px;
+            font-weight: bold;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .deposit-input:focus {
+            border-color: #FFF700;
+            box-shadow: 0 0 20px rgba(255,215,0,0.5);
+            transform: scale(1.05);
+        }
+
+        .currency-symbol {
+            font-size: 24px;
+            font-weight: bold;
+            color: #FFD700;
+            margin-left: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .deposit-btn {
+            padding: 15px 40px;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .deposit-btn:hover:not(:disabled) {
+            background: linear-gradient(45deg, #45a049, #4CAF50);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.7);
+        }
+
+        .deposit-btn:disabled {
+            background: linear-gradient(45deg, #666, #555);
+            cursor: not-allowed;
+            opacity: 0.6;
+            transform: none;
+        }
+
+        .deposit-cooldown {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(244, 67, 54, 0.9);
+            border-radius: 10px;
+            border: 2px solid #FF5722;
+            color: white;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        #cooldown-timer {
+            color: #FFD700;
+            font-size: 18px;
+        }
+
+        /* Ефекти виграшу */
+        .win-explosion {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        .lightning {
+            position: absolute;
+            width: 4px;
+            height: 80px;
+            background: linear-gradient(180deg, #FFD700, #FFF700, #FFFF00, transparent);
+            border-radius: 2px;
+            animation: lightningStrike 2s ease-out forwards;
+            filter: drop-shadow(0 0 10px #FFD700);
+        }
+
+        @keyframes lightningStrike {
+            0% {
+                transform: translateY(-100px) scaleY(0);
+                opacity: 0;
+            }
+            20% {
+                transform: translateY(-20px) scaleY(1);
+                opacity: 1;
+            }
+            40% {
+                transform: translateY(0px) scaleY(1.2);
+                opacity: 0.8;
+            }
+            60% {
+                transform: translateY(20px) scaleY(0.8);
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(100px) scaleY(0);
+                opacity: 0;
+            }
+        }
+
+        /* Зірки для виграшу */
+        .star {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #FFD700;
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            animation: starBurst 2.5s ease-out forwards;
+        }
+
+        @keyframes starBurst {
+            0% {
+                transform: scale(0) rotate(0deg);
+                opacity: 1;
+            }
+            30% {
+                transform: scale(1.5) rotate(180deg);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(0.5) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* ========= СТИЛІ ДЛЯ АДМІН ПАНЕЛІ ========= */
+        .admin-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+            animation: modalFadeIn 0.5s ease-out;
+        }
+
+        .admin-content {
+            background: linear-gradient(145deg, #1976D2, #0D47A1);
+            padding: 30px;
+            border-radius: 25px;
+            color: white;
+            border: 4px solid #FFD700;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.8);
+            position: relative;
+            width: 90%;
+            max-width: 1000px;
+            max-height: 90%;
+            overflow-y: auto;
+        }
+
+        .admin-content h2 {
+            margin: 0 0 25px 0;
+            font-size: 28px;
+            color: #FFD700;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.8);
+            text-align: center;
+        }
+
+        .close-admin {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: #FFD700;
+            font-size: 28px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-admin:hover {
+            transform: scale(1.2);
+            text-shadow: 0 0 15px #FFD700;
+        }
+
+        .admin-tabs {
+            display: flex;
+            margin-bottom: 25px;
+            border-radius: 10px;
+            overflow: hidden;
+            justify-content: center;
+        }
+
+        .admin-tab {
+            flex: 1;
+            max-width: 200px;
+            padding: 12px 20px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .admin-tab.active {
+            background: #FFD700;
+            color: #1976D2;
+        }
+
+        .users-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid rgba(255,215,0,0.3);
+        }
+
+        .stat-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            color: #FFD700;
+        }
+
+        .stat-card span {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .users-table-container {
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            color: white;
+        }
+
+        .users-table th {
+            background: #FFD700;
+            color: #1976D2;
+            padding: 12px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .users-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(255,215,0,0.2);
+        }
+
+        .users-table tr:hover {
+            background: rgba(255,215,0,0.1);
+        }
+
+        .admin-btn {
+            padding: 6px 12px;
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .admin-btn:hover {
+            background: linear-gradient(45deg, #d32f2f, #c62828);
+            transform: translateY(-1px);
+        }
+
+        .admin-access-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, #FF9800, #F57C00);
+            border: 3px solid #FFD700;
+            border-radius: 50%;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+            transition: all 0.3s ease;
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            animation: adminButtonPulse 3s infinite;
+        }
+
+        .admin-access-btn.show {
+            display: flex;
+        }
+
+        .admin-access-btn:hover {
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.8);
+            background: linear-gradient(45deg, #F57C00, #FF9800);
+        }
+
+        @keyframes adminButtonPulse {
+            0%, 100% { 
+                box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+            }
+            50% { 
+                box-shadow: 0 8px 35px rgba(255,152,0,0.7), 0 0 20px rgba(255,215,0,0.5);
+            }
+        }
+
+        /* Адаптивність */
+        @media (max-width: 768px) {
+            .slot-machine {
+                min-width: 95vw;
+                padding: 10px;
+            }
+            
+            .reels-container {
+                grid-template-columns: repeat(5, 90px);
+                grid-template-rows: repeat(3, 90px);
+                gap: 3px;
+                width: 480px;
+                height: 310px;
+            }
+            
+            .reel-cell {
+                width: 90px;
+                height: 90px;
+            }
+
+            .slot-logo {
+                width: 250px;
+                height: 80px;
+            }
+
+            .main-tower { display: none; }
+            .city-background { height: 40%; }
+            .flying-plane { display: none; }
+            .explosion { display: none; }
+
+            .rules-content {
+                width: 95%;
+                height: 95%;
+            }
+
+            .rules-title {
+                font-size: 22px;
+            }
+
+            .nav-btn {
+                padding: 10px 20px;
+                font-size: 14px;
+                min-width: 100px;
+            }
+
+            .admin-content {
+                width: 95%;
+                padding: 20px;
+            }
+            
+            .users-table {
+                font-size: 12px;
+            }
+            
+            .users-table th,
+            .users-table td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Модалка авторизації -->
+    <div class="auth-modal" id="auth-modal">
+        <div class="auth-content">
+            <h2>THE P1DORASU</h2>
+            <p style="color: #666; margin-bottom: 20px;">НАУ КАНТОРА ПІДАРАСІВ</p>
+
+            <div class="warning-box">
+                <h3>⚠️ ВАЖЛИВЕ ПОПЕРЕДЖЕННЯ</h3>
+                <ul>
+                    <li>Азартні ігри можуть викликати залежність</li>
+                    <li>Доступ дозволено лише особам старше 21 року</li>
+                    <li>Якщо ви маєте проблеми з азартними іграми, зверніться по допомогу</li>
+                    <li>Ну а взагалі мені похуй, грайте і пройобуйте гроші</li>
+                </ul>
+            </div>
+
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login" onclick="switchTab('login')">ВХІД</button>
+                <button class="auth-tab" data-tab="register" onclick="switchTab('register')">РЕЄСТРАЦІЯ</button>
+            </div>
+
+            <!-- Форма входу -->
+            <form class="auth-form active" id="login-form" onsubmit="return doLogin(event)">
+                <input type="text" id="login-email" placeholder="Email або Username" required>
+                <input type="password" id="login-password" placeholder="Пароль" required>
+                <div class="age-checkbox">
+                    <input type="checkbox" id="login-age" required>
+                    <label for="login-age">Я підтверджую, що мені виповнився 21 рік і я усвідомлюю ризики</label>
+                </div>
+                <button type="submit" class="auth-btn">УВІЙТИ</button>
+                <div class="error-message" id="login-error"></div>
+            </form>
+
+            <!-- Форма реєстрації -->
+            <form class="auth-form" id="register-form" onsubmit="return doRegister(event)">
+                <input type="text" id="register-username" placeholder="Username" required>
+                <input type="email" id="register-email" placeholder="Email" required>
+                <input type="password" id="register-password" placeholder="Пароль (мін. 6 символів)" required minlength="6">
+                <input type="password" id="register-password-confirm" placeholder="Повторіть пароль" required>
+                <div class="age-checkbox">
+                    <input type="checkbox" id="register-age" required>
+                    <label for="register-age">Мені виповнився 21 рік, я розумію що це навчальний проект</label>
+                </div>
+                <button type="submit" class="auth-btn">ЗАРЕЄСТРУВАТИСЬ</button>
+                <div class="error-message" id="register-error"></div>
+                <div class="success-message" id="register-success"></div>
+            </form>
+
+            <!-- Демо режим -->
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd;">
+                <p style="color: #666; margin-bottom: 10px;">Хочете спробувати без реєстрації?</p>
+                <button type="button" class="auth-btn demo" onclick="startDemo()">ДЕМО РЕЖИМ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Панель користувача -->
+    <div class="user-panel" id="user-panel">
+        <span class="user-name">👤 <span id="user-name">Guest</span></span>
+        <button class="logout-btn" onclick="doLogout()">ВИЙТИ</button>
+    </div>
+
+    <!-- Головний контейнер гри -->
+    <div class="game-container" id="game-container">
+        <!-- Хмари -->
+        <div class="cloud cloud1"></div>
+        <div class="cloud cloud2"></div>
+        <div class="cloud cloud3"></div>
+        
+        <!-- Фонове місто -->
+        <div class="city-background">
+            <div class="building-bg building1"></div>
+            <div class="building-bg building2"></div>
+        </div>
+        
+        <!-- Літак що летить -->
+        <div class="flying-plane"></div>
+        
+        <!-- Ефекти вибухів -->
+        <div class="explosion"></div>
+        <div class="explosion-2"></div>
+
+        <!-- Слот машина -->
+        <div class="slot-machine">
+            <!-- Лого -->
+            <div class="slot-logo"></div>
+            
+            <div class="reels-container" id="reels">
+                <!-- Генеруються динамічно -->
+            </div>
+            
+            <div class="controls">
+                <!-- Інформаційна панель всередині контролів -->
+                <div class="info-panel">
+                    <div class="balance">Баланс: ₴<span id="balance">1000.00</span></div>
+                    <div class="bet">Ставка: ₴<span id="bet-amount">1.00</span></div>
+                    <div class="win">Виграш: ₴<span id="win-amount">0.00</span></div>
+                    <div id="free-spins-info" class="free-spins-info" style="display: none;">
+                        Фріспіни: <span id="free-spins">0</span>
+                    </div>
+                </div>
+                
+                <button class="control-btn btn-spin" id="spin-btn" onclick="spin()" title="Крутити"></button>
+                
+                <div style="display: flex; gap: 15px;">
+                    <button class="control-btn btn-settings" id="settings-btn" onclick="showSettings()" title="Налаштування"></button>
+                    <button class="control-btn btn-auto" id="auto-btn" onclick="toggleAuto()" title="Авто режим"></button>
+                </div>
+            </div>
+            
+            <!-- Область для повідомлень -->
+            <div class="message-area" id="message-area"></div>
+        </div>
+
+        <!-- Ефекти виграшу -->
+        <div class="win-explosion" id="win-explosion"></div>
+    </div>
+
+    <!-- Повноекранне бонусне вікно -->
+    <div class="bonus-intro-modal" id="bonus-intro-modal">
+        <div class="bonus-intro-content">
+            <button class="bonus-continue-btn" id="bonus-continue-btn" onclick="startBonusGame()">РОЗПОЧАТИ</button>
+        </div>
+    </div>
+
+    <!-- Модальне вікно результатів бонусу -->
+    <div class="bonus-result-modal" id="bonus-result-modal">
+        <div class="bonus-result-content">
+            <div class="bonus-result-text">БОНУС ЗАВЕРШЕНО!</div>
+            <div class="bonus-result-amount">₴<span id="bonus-total-win">0.00</span></div>
+            <button class="bonus-continue-btn" id="bonus-result-continue" onclick="closeBonusResult()">ПРОДОВЖИТИ</button>
+        </div>
+    </div>
+
+    <!-- Модальне вікно налаштувань -->
+    <div class="settings-modal" id="settings-modal">
+        <div class="settings-content">
+            <button class="close-settings" id="close-settings" onclick="closeSettings()">✕</button>
+            <h2>НАЛАШТУВАННЯ</h2>
+            
+            <!-- Інформація та звук -->
+            <div class="settings-section">
+                <div class="settings-row">
+                    <span>Інформація про гру:</span>
+                    <button class="settings-btn" id="game-info-btn" onclick="showRules()">ІНФО</button>
+                </div>
+                <div class="settings-row">
+                    <span>Фонова музика:</span>
+                    <button class="settings-btn" id="music-toggle-btn" onclick="toggleMusic()">MUSIC ON</button>
+                </div>
+                <div class="settings-row">
+                    <span>Додеп функція:</span>
+                    <button class="settings-btn" id="dodep-btn" onclick="showDeposit()">ДОДЕП</button>
+                </div>
+            </div>
+
+            <!-- Ставки та авто -->
+            <div class="settings-section">
+                <div class="settings-row">
+                    <span>Розмір ставки:</span>
+                    <div class="slider-container">
+                        <input type="range" class="settings-slider" id="bet-slider" 
+                               min="0.2" max="100" step="0.1" value="1" oninput="updateBet(this.value)">
+                        <span class="slider-value">₴<span id="bet-display">1.00</span></span>
+                    </div>
+                </div>
+                <div class="settings-row">
+                    <span>Авто кручення:</span>
+                    <div class="slider-container">
+                        <input type="range" class="settings-slider" id="auto-spins-slider" 
+                               min="0" max="1000" step="10" value="0" oninput="updateAutoSpins(this.value)">
+                        <span class="slider-value"><span id="auto-spins-display">0</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Покупка бонусів -->
+            <div class="settings-section">
+                <div class="settings-row">
+                    <span>Купити 12 фріспінів:</span>
+                </div>
+                <button class="buy-bonus-btn" id="buy-bonus-btn" onclick="buyBonus()">
+                    КУПИТИ ЗА ₴<span id="bonus-price">100.00</span>
+                </button>
+            </div>
+
+            <button class="settings-btn" id="close-settings-btn" onclick="closeSettings()" style="margin-top: 20px; width: 200px;">ЗАКРИТИ</button>
+        </div>
+    </div>
+
+    <!-- Модальне вікно правил гри -->
+    <div class="rules-modal" id="rules-modal">
+        <div class="rules-content">
+            <div class="rules-header">
+                <button class="close-rules" id="close-rules" onclick="closeRules()">✕</button>
+            </div>
+            
+            <div class="rules-image-container">
+                <img class="rules-image" id="rules-image" src="images/Pravila 1.png" alt="Правила гри">
+            </div>
+            
+            <div class="rules-navigation">
+                <button class="nav-btn" id="prev-rule" onclick="prevRule()" disabled>← ПОПЕРЕДНЯ</button>
+                <div class="page-indicator">
+                    <span id="current-page">1</span> / <span id="total-pages">3</span>
+                </div>
+                <button class="nav-btn" id="next-rule" onclick="nextRule()">НАСТУПНА →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальне вікно бонусів -->
+    <div class="bonus-modal" id="bonus-modal">
+        <div class="modal-content">
+            <h2>ЧАРА NASÓPAV</h2>
+            <p>FREE SPINS</p>
+            <p>PRESS ANYWHERE TO CONTINUE</p>
+            <button class="close-modal" id="close-bonus" onclick="closeBonus()">Продовжити</button>
+        </div>
+    </div>
+
+    <!-- Модальне вікно депозиту -->
+    <div class="deposit-modal" id="deposit-modal">
+        <div class="deposit-content">
+            <button class="close-deposit" id="close-deposit" onclick="closeDeposit()">✕</button>
+            <h2>ДОДЕП ЗЕПКОЙ ВОВНИ</h2>
+            <p>Введіть суму депозиту (максимум 10,000₴):</p>
+            <div class="deposit-input-container">
+                <input type="number" id="deposit-amount" min="1" max="10000" placeholder="1000" class="deposit-input">
+                <span class="currency-symbol">₴</span>
+            </div>
+            <button class="deposit-btn" id="confirm-deposit" onclick="processDeposit()">ПОПОВНИТИ</button>
+            <div class="deposit-cooldown" id="deposit-cooldown" style="display: none;">
+                Наступний депозит через: <span id="cooldown-timer">00:00</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальне вікно адміністрування -->
+    <div class="admin-modal" id="admin-modal" style="display: none;">
+        <div class="admin-content">
+            <button class="close-admin" onclick="closeAdmin()">✕</button>
+            <h2>ПАНЕЛЬ АДМІНІСТРАТОРА</h2>
+            
+            <div class="admin-tabs">
+                <button class="admin-tab active" onclick="switchAdminTab('users')">КОРИСТУВАЧІ</button>
+                <button class="admin-tab" onclick="switchAdminTab('stats')">СТАТИСТИКА</button>
+            </div>
+            
+            <div class="admin-section" id="admin-users">
+                <div class="users-stats">
+                    <div class="stat-card">
+                        <h3>Всього користувачів:</h3>
+                        <span id="total-users">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Онлайн зараз:</h3>
+                        <span id="online-users">1</span>
+                    </div>
+                </div>
+                
+                <div class="users-table-container">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Баланс</th>
+                                <th>Дата реєстрації</th>
+                                <th>Дії</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body">
+                            <!-- Заповнюється динамічно -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="admin-section" id="admin-stats" style="display: none;">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Загальна кількість спінів:</h3>
+                        <span id="global-spins">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Загальний оборот:</h3>
+                        <span id="global-wagered">₴0.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========= ГЛОБАЛЬНІ ЗМІННІ ТА НАЛАШТУВАННЯ =========
+        var gameState = {
+            // Символи гри
+            symbols: [
+                { id: 'dog1', image: 'images/symbols/symbol_dog1.png', multiplier: [0, 0, 5, 15, 75], isHigh: true },
+                { id: 'dog2', image: 'images/symbols/symbol_dog2.png', multiplier: [0, 0, 3.5, 10, 50], isHigh: true },
+                { id: 'dog3', image: 'images/symbols/symbol_dog3.png', multiplier: [0, 0, 2.5, 6, 30], isHigh: true },
+                { id: 'dog4', image: 'images/symbols/symbol_dog4.png', multiplier: [0, 0, 2, 4, 20], isHigh: true },
+                { id: 'collar', image: 'images/symbols/symbol_collar.png', multiplier: [0, 0, 1.2, 2.5, 15], isHigh: false },
+                { id: 'bone', image: 'images/symbols/symbol_bone.png', multiplier: [0, 0, 0.8, 2, 10], isHigh: false },
+                { id: 'a', image: 'images/symbols/symbol_a.png', multiplier: [0, 0, 0.5, 1, 5], isHigh: false },
+                { id: 'k', image: 'images/symbols/symbol_k.png', multiplier: [0, 0, 0.5, 1, 5], isHigh: false },
+                { id: 'q', image: 'images/symbols/symbol_q.png', multiplier: [0, 0, 0.2, 0.5, 2.5], isHigh: false },
+                { id: 'j', image: 'images/symbols/symbol_j.png', multiplier: [0, 0, 0.2, 0.5, 2.5], isHigh: false },
+                { id: '10', image: 'images/symbols/symbol_10.png', multiplier: [0, 0, 0.2, 0.5, 2.5], isHigh: false },
+                { id: 'bonus', image: 'images/symbols/symbol_bonus.png', multiplier: [0, 0, 0, 0, 0], isScatter: true },
+                { id: 'wild', image: 'images/symbols/symbol_wild.png', multiplier: [0, 0, 0, 0, 0], isWild: true },
+                { id: 'symbol_2x', image: 'images/symbols/symbol_2x.png', multiplier: 2, isMultiplier: true },
+                { id: 'symbol_3x', image: 'images/symbols/symbol_3x.png', multiplier: 3, isMultiplier: true }
+            ],
+            
+            // Виграшні лінії (20 ліній)
+            paylines: [
+                [0,1,2,3,4],     [5,6,7,8,9],     [10,11,12,13,14], [0,6,12,8,4],    [5,1,7,3,9],     
+                [0,1,7,13,14],   [10,11,7,3,4],   [10,6,2,8,14],    [5,1,12,3,9],    [5,11,7,13,9],   
+                [10,1,7,3,14],   [0,11,2,13,4],   [5,6,12,8,9],     [5,6,2,8,9],     [10,11,7,13,14], 
+                [0,6,12,8,4],    [10,6,7,8,4],    [0,6,7,8,14],     [5,1,7,13,9],    [5,11,12,13,9]   
+            ],
+            
+            // Основні параметри гри
+            balance: 1000.00,           currentBet: 1.00,           currentWin: 0.00,
+            isSpinning: false,          isAutoMode: false,          autoSpinsLeft: 0,
+            totalAutoSpins: 0,          freeSpins: 0,               isBonusGame: false,
+            bonusTotalWin: 0,           stickyMultipliers: {},      soundEnabled: true,
+            musicEnabled: true,         reels: [],                  winningSymbols: [],
+            
+            // Депозити та інше
+            depositCooldown: 0,         cooldownDuration: 5 * 60 * 1000,   cooldownTimer: null,
+            rulesImages: ['images/Pravila 1.png', 'images/Pravila 2.png', 'images/Pravila 3.png'],
+            currentRulePage: 0,         totalSpins: 0,              totalWins: 0,
+            biggestWin: 0,              totalWagered: 0,            achievements: {}
+        };
+        
+        // Користувачі та адмін система
+        var users = {};
+        var currentUser = null;
+        var sounds = { main: null, spin: null, win: null };
+        
+        // Покращені дані адміна
+        var adminCredentials = { username: 'admin', password: 'nau2025admin' };
+        var isAdminLoggedIn = false;
+
+        // ========= ПОКРАЩЕНА СИСТЕМА АДМІНІСТРУВАННЯ =========
+        
+        // Множинні способи перевірки адмін доступу
+        function checkAdminAccess() {
+            // Спосіб 1: Стандартний prompt
+            var username = prompt('🔐 Введіть username адміна:\n(Підказка: admin)');
+            if (!username) return false;
+            
+            var password = prompt('🔑 Введіть пароль адміна:\n(Підказка: nau2025admin)');
+            if (!password) return false;
+            
+            // Детальна перевірка з логами
+            console.log('=== АДМІН ПЕРЕВІРКА ===');
+            console.log('Введено username:', '"' + username + '"');
+            console.log('Введено password:', '"' + password + '"');
+            console.log('Очікується username:', '"' + adminCredentials.username + '"');
+            console.log('Очікується password:', '"' + adminCredentials.password + '"');
+            
+            // Перевірка з видаленням пробілів
+            username = username.trim().toLowerCase();
+            password = password.trim();
+            
+            if (username === adminCredentials.username && password === adminCredentials.password) {
+                isAdminLoggedIn = true;
+                showAdminPanel();
+                console.log('✅ Адмін доступ надано');
+                showMessage('Вітаємо в адмін панелі!', 'success');
+                return true;
+            } else {
+                console.log('❌ Невірні дані');
+                alert('❌ Неправильні дані адміна!\n\nВведено:\nUsername: "' + username + '"\nPassword: "' + password + '"\n\nПеревірте правильність введених даних.');
+                return false;
+            }
+        }
+        
+        // Альтернативний спосіб доступу
+        function alternativeAdminAccess() {
+            var credentials = prompt('🔐 Альтернативний вхід\nВведіть дані у форматі: username:password\n\nПриклад: admin:nau2025admin');
+            
+            if (!credentials) {
+                alert('Дані не введені!');
+                return false;
+            }
+            
+            var parts = credentials.split(':');
+            if (parts.length !== 2) {
+                alert('❌ Неправильний формат!\nВикористовуйте: username:password');
+                return false;
+            }
+            
+            var username = parts[0].trim().toLowerCase();
+            var password = parts[1].trim();
+            
+            if (username === adminCredentials.username && password === adminCredentials.password) {
+                isAdminLoggedIn = true;
+                showAdminPanel();
+                showMessage('Адмін панель активована!', 'success');
+                return true;
+            } else {
+                alert('❌ Неправильні дані адміна!');
+                return false;
+            }
+        }
+        
+        // Функція прямого доступу (для тестування)
+        function forceAdminAccess() {
+            isAdminLoggedIn = true;
+            showAdminPanel();
+            console.log('🔓 Адмін панель відкрита примусово (для тестування)');
+            showMessage('Адмін панель відкрита в тестовому режимі', 'success');
+        }
+        
+        // Показати панель адміна
+        function showAdminPanel() {
+            loadAdminData();
+            document.getElementById('admin-modal').style.display = 'flex';
+        }
+        
+        // Закрити панель адміна
+        function closeAdmin() {
+            document.getElementById('admin-modal').style.display = 'none';
+        }
+        
+        // Перемикання табів адміна
+        function switchAdminTab(tab) {
+            var tabs = document.querySelectorAll('.admin-tab');
+            var sections = document.querySelectorAll('.admin-section');
+            
+            tabs.forEach(function(t) { t.classList.remove('active'); });
+            sections.forEach(function(s) { s.style.display = 'none'; });
+            
+            document.querySelector('.admin-tab[onclick="switchAdminTab(\'' + tab + '\')"]').classList.add('active');
+            document.getElementById('admin-' + tab).style.display = 'block';
+            
+            if (tab === 'users') loadUsersTable();
+            else if (tab === 'stats') loadGlobalStats();
+        }
+        
+        // Завантаження даних адміна
+        function loadAdminData() {
+            loadUsersTable();
+            loadGlobalStats();
+        }
+        
+        // Завантаження таблиці користувачів
+        function loadUsersTable() {
+            var totalUsers = Object.keys(users).length;
+            document.getElementById('total-users').textContent = totalUsers;
+            document.getElementById('online-users').textContent = currentUser ? '1' : '0';
+            
+            var tableBody = document.getElementById('users-table-body');
+            tableBody.innerHTML = '';
+            
+            if (totalUsers === 0) {
+                var row = document.createElement('tr');
+                row.innerHTML = '<td colspan="5" style="text-align: center; color: #FFD700;">Користувачі не знайдені</td>';
+                tableBody.appendChild(row);
+                return;
+            }
+            
+            for (var email in users) {
+                var user = users[email];
+                var row = document.createElement('tr');
+                var createdDate = new Date(user.createdAt).toLocaleDateString('uk-UA');
+                
+                row.innerHTML = 
+                    '<td><strong>' + user.username + '</strong></td>' +
+                    '<td>' + user.email + '</td>' +
+                    '<td><span style="color: #4CAF50;">₴' + user.balance.toFixed(2) + '</span></td>' +
+                    '<td>' + createdDate + '</td>' +
+                    '<td><button class="admin-btn" onclick="deleteUser(\'' + email + '\')">ВИДАЛИТИ</button></td>';
+                
+                tableBody.appendChild(row);
+            }
+        }
+        
+        // Завантаження глобальної статистики
+        function loadGlobalStats() {
+            var totalSpins = 0, totalWagered = 0;
+            
+            for (var email in users) {
+                var gameData = localStorage.getItem('nau_game_' + email);
+                if (gameData) {
+                    try {
+                        var data = JSON.parse(gameData);
+                        totalSpins += data.totalSpins || 0;
+                        totalWagered += data.totalWagered || 0;
+                    } catch (e) {
+                        console.log('Помилка читання даних користувача:', email);
+                    }
+                }
+            }
+            
+            document.getElementById('global-spins').textContent = totalSpins.toLocaleString();
+            document.getElementById('global-wagered').textContent = '₴' + totalWagered.toFixed(2);
+        }
+        
+        // Видалення користувача
+        function deleteUser(email) {
+            if (!isAdminLoggedIn) return;
+            
+            if (confirm('⚠️ Ви впевнені, що хочете видалити користувача "' + users[email].username + '"?\n\nЦя дія незворотна!')) {
+                delete users[email];
+                localStorage.setItem('nauSlotUsers', JSON.stringify(users));
+                localStorage.removeItem('nau_game_' + email);
+                
+                loadUsersTable();
+                showMessage('Користувача видалено успішно!', 'success');
+            }
+        }
+        
+        // Покращена кнопка адміна з множинними способами доступу
+        function addAdminButton() {
+            var adminBtn = document.createElement('button');
+            adminBtn.className = 'admin-access-btn';
+            adminBtn.innerHTML = '⚙';
+            adminBtn.title = 'Панель адміністратора\nПКМ - альтернативний вхід\nCtrl+Click - прямий доступ';
+            
+            adminBtn.onclick = function(e) {
+                e.preventDefault();
+                if (e.ctrlKey) {
+                    forceAdminAccess();
+                } else {
+                    checkAdminAccess();
+                }
+            };
+            
+            adminBtn.oncontextmenu = function(e) {
+                e.preventDefault();
+                alternativeAdminAccess();
+            };
+            
+            // Показуємо кнопку завжди (для тестування)
+            adminBtn.classList.add('show');
+            document.body.appendChild(adminBtn);
+            
+            // Додаємо підказку в консоль
+            console.log('🔧 АДМІН ДОСТУП:');
+            console.log('• Звичайний клік: стандартний вхід');
+            console.log('• Ctrl+клік: прямий доступ (тестування)');
+            console.log('• ПКМ: альтернативний формат входу');
+            console.log('• Дані: admin / nau2025admin');
+        }
+        
+        // ========= СИСТЕМА АВТОРИЗАЦІЇ =========
+        
+        function loadUsers() {
+            try {
+                var saved = localStorage.getItem('nauSlotUsers');
+                if (saved) users = JSON.parse(saved);
+                console.log('Завантажено користувачів:', Object.keys(users).length);
+            } catch (e) {
+                console.error('Помилка завантаження користувачів:', e);
+            }
+        }
+        
+        function hashPassword(password) {
+            var hash = 0;
+            for (var i = 0; i < password.length; i++) {
+                var char = password.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            return hash.toString();
+        }
+        
+        function switchTab(tab) {
+            var tabs = document.getElementsByClassName('auth-tab');
+            var forms = document.getElementsByClassName('auth-form');
+            
+            for (var i = 0; i < tabs.length; i++) {
+                if (tabs[i].dataset.tab === tab) tabs[i].classList.add('active');
+                else tabs[i].classList.remove('active');
+            }
+            
+            for (var i = 0; i < forms.length; i++) {
+                if (forms[i].id === tab + '-form') forms[i].classList.add('active');
+                else forms[i].classList.remove('active');
+            }
+        }
+        
+        function doRegister(event) {
+            event.preventDefault();
+            
+            var username = document.getElementById('register-username').value.trim();
+            var email = document.getElementById('register-email').value.trim();
+            var password = document.getElementById('register-password').value;
+            var passwordConfirm = document.getElementById('register-password-confirm').value;
+            var ageConfirmed = document.getElementById('register-age').checked;
+            
+            var errorEl = document.getElementById('register-error');
+            var successEl = document.getElementById('register-success');
+            
+            errorEl.style.display = 'none';
+            successEl.style.display = 'none';
+            
+            if (!ageConfirmed) {
+                errorEl.textContent = 'Ви повинні підтвердити, що вам 21 рік';
+                errorEl.style.display = 'block';
+                return false;
+            }
+            
+            if (password !== passwordConfirm) {
+                errorEl.textContent = 'Паролі не співпадають';
+                errorEl.style.display = 'block';
+                return false;
+            }
+            
+            if (password.length < 6) {
+                errorEl.textContent = 'Пароль повинен бути не менше 6 символів';
+                errorEl.style.display = 'block';
+                return false;
+            }
+            
+            if (users[email]) {
+                errorEl.textContent = 'Користувач з таким email вже існує';
+                errorEl.style.display = 'block';
+                return false;
+            }
+            
+            users[email] = {
+                username: username,
+                email: email,
+                password: hashPassword(password),
+                balance: 1000.00,
+                createdAt: new Date().toISOString()
+            };
+            
+            localStorage.setItem('nauSlotUsers', JSON.stringify(users));
+            
+            successEl.textContent = 'Реєстрація успішна! Тепер ви можете увійти';
+            successEl.style.display = 'block';
+            
+            setTimeout(function() {
+                switchTab('login');
+                document.getElementById('login-email').value = email;
+            }, 2000);
+            
+            return false;
+        }
+        
+        function doLogin(event) {
+            event.preventDefault();
+            
+            var emailOrUsername = document.getElementById('login-email').value.trim();
+            var password = document.getElementById('login-password').value;
+            var ageConfirmed = document.getElementById('login-age').checked;
+            
+            var errorEl = document.getElementById('login-error');
+            errorEl.style.display = 'none';
+            
+            if (!ageConfirmed) {
+                errorEl.textContent = 'Ви повинні підтвердити, що вам 21 рік';
+                errorEl.style.display = 'block';
+                return false;
+            }
+            
+            var user = null;
+            for (var email in users) {
+                if (users[email].email === emailOrUsername || users[email].username === emailOrUsername) {
+                    user = users[email];
+                    break;
+                }
+            }
+            
+            if (!user || user.password !== hashPassword(password)) {
+                errorEl.textContent = 'Неправильний email/username або пароль';
+                errorEl.style.display = 'block';
+                return false;
+            }
+            
+            currentUser = user;
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            console.log('Вхід успішний для користувача:', user.username);
+            startGame(user);
+            return false;
+        }
+        
+        function startDemo() {
+            currentUser = {
+                username: 'Demo Player',
+                balance: 1000.00,
+                isDemo: true
+            };
+            
+            console.log('Запуск демо режиму');
+            startGame(currentUser);
+        }
+        
+        function startGame(user) {
+            console.log('Запуск гри для користувача:', user.username);
+            
+            document.getElementById('auth-modal').classList.add('hidden');
+            document.getElementById('game-container').classList.add('active');
+            document.getElementById('user-panel').classList.add('active');
+            document.getElementById('user-name').textContent = user.username;
+            
+            gameState.balance = user.balance || 1000.00;
+            
+            initializeGame();
+            loadGameState();
+            initSounds();
+        }
+        
+        function doLogout() {
+            console.log('Вихід з системи...');
+            
+            saveGameState();
+            
+            if (currentUser && !currentUser.isDemo && users[currentUser.email]) {
+                users[currentUser.email].balance = gameState.balance;
+                localStorage.setItem('nauSlotUsers', JSON.stringify(users));
+            }
+            
+            localStorage.removeItem('currentUser');
+            location.reload();
+        }
+        
+        // ========= ФУНКЦІЇ ГРИ =========
+        
+        function initializeGame() {
+            var reelsContainer = document.getElementById('reels');
+            reelsContainer.innerHTML = '';
+            gameState.reels = [];
+            
+            for (var i = 0; i < 15; i++) {
+                var cell = document.createElement('div');
+                cell.className = 'reel-cell';
+                var symbol = getRandomSymbol(i);
+                cell.style.backgroundImage = 'url(' + symbol.image + ')';
+                cell.dataset.symbolId = symbol.id;
+                reelsContainer.appendChild(cell);
+                gameState.reels.push(cell);
+            }
+            
+            updateDisplay();
+        }
+        
+        function getRandomSymbol(position) {
+            var random = Math.random();
+            
+            if (gameState.isBonusGame && position !== null) {
+                var bonusPositions = [1, 6, 11, 2, 7, 12, 3, 8, 13];
+                
+                if (bonusPositions.indexOf(position) !== -1) {
+                    if (random < 0.07) return gameState.symbols[13]; // symbol_2x
+                    if (random < 0.12) return gameState.symbols[14]; // symbol_3x
+                }
+            }
+            
+            if (!gameState.isBonusGame && position !== null) {
+                var scatterPositions = [0, 2, 4, 5, 7, 9, 10, 12, 14];
+                if (scatterPositions.indexOf(position) !== -1) {
+                    if (random < 0.01) return gameState.symbols[11]; // bonus
+                }
+            }
+            
+            if (random < 0.02) return gameState.symbols[0];  // dog1 (2%)
+            if (random < 0.04) return gameState.symbols[1];  // dog2 (2%)
+            if (random < 0.07) return gameState.symbols[2];  // dog3 (3%)
+            if (random < 0.11) return gameState.symbols[3];  // dog4 (4%)
+            if (random < 0.16) return gameState.symbols[4];  // collar (5%)
+            if (random < 0.22) return gameState.symbols[5];  // bone (6%)
+            if (random < 0.32) return gameState.symbols[6];  // a (10%)
+            if (random < 0.42) return gameState.symbols[7];  // k (10%)
+            if (random < 0.58) return gameState.symbols[8];  // q (16%)
+            if (random < 0.74) return gameState.symbols[9];  // j (16%)
+            return gameState.symbols[10]; // 10 (26%)
+        }
+        
+        function spin() {
+            if (gameState.isSpinning) return;
+            
+            if (gameState.freeSpins === 0 && gameState.balance < gameState.currentBet) {
+                showMessage('Недостатньо коштів для ставки!', 'error');
+                return;
+            }
+            
+            gameState.isSpinning = true;
+            gameState.currentWin = 0.00;
+            clearWinEffects();
+            
+            document.getElementById('spin-btn').style.opacity = '0.5';
+            
+            if (gameState.freeSpins > 0) {
+                gameState.freeSpins--;
+            } else {
+                gameState.balance -= gameState.currentBet;
+                gameState.totalWagered += gameState.currentBet;
+            }
+            
+            gameState.totalSpins++;
+            playSound('spin');
+            
+            if (gameState.isBonusGame) {
+                applyStickyMultipliers();
+            }
+            
+            for (var i = 0; i < gameState.reels.length; i++) {
+                if (gameState.isBonusGame && gameState.stickyMultipliers[i]) {
+                    continue;
+                }
+                
+                (function(index) {
+                    gameState.reels[index].classList.add('spinning');
+                    
+                    setTimeout(function() {
+                        var symbol = getRandomSymbol(index);
+                        if (symbol) {
+                            gameState.reels[index].style.backgroundImage = 'url(' + symbol.image + ')';
+                            gameState.reels[index].dataset.symbolId = symbol.id;
+                        }
+                        gameState.reels[index].classList.remove('spinning');
+                        
+                        if (index === gameState.reels.length - 1) {
+                            setTimeout(function() {
+                                if (gameState.isBonusGame) {
+                                    checkForNewStickyMultipliers();
+                                }
+                                
+                                checkWin();
+                                gameState.isSpinning = false;
+                                document.getElementById('spin-btn').style.opacity = '1';
+                                
+                                if (gameState.isBonusGame && gameState.freeSpins === 0) {
+                                    setTimeout(endBonusGame, 2000);
+                                    return;
+                                }
+                                
+                                if (gameState.isBonusGame && gameState.freeSpins > 0) {
+                                    setTimeout(spin, 1500);
+                                } else if (gameState.isAutoMode && gameState.autoSpinsLeft > 0) {
+                                    gameState.autoSpinsLeft--;
+                                    setTimeout(spin, 1500);
+                                    if (gameState.autoSpinsLeft === 0) {
+                                        gameState.isAutoMode = false;
+                                        document.getElementById('auto-btn').classList.remove('active');
+                                        showMessage('Автоспіни завершені!', 'success');
+                                    }
+                                }
+                                
+                                saveGameState();
+                                checkAchievements();
+                            }, 200);
+                        }
+                    }, 1000 + (index * 200));
+                })(i);
+            }
+            
+            updateDisplay();
+        }
+        
+        function checkWin() {
+            var totalWin = 0;
+            gameState.winningSymbols = [];
+            
+            for (var i = 0; i < gameState.paylines.length; i++) {
+                var line = gameState.paylines[i];
+                var lineSymbols = [];
+                
+                for (var j = 0; j < line.length; j++) {
+                    lineSymbols.push(gameState.reels[line[j]].dataset.symbolId);
+                }
+                
+                var winResult = checkLineWin(lineSymbols, line);
+                
+                if (winResult.win > 0) {
+                    totalWin += winResult.win;
+                    for (var k = 0; k < winResult.count; k++) {
+                        if (gameState.winningSymbols.indexOf(line[k]) === -1) {
+                            gameState.winningSymbols.push(line[k]);
+                        }
+                    }
+                }
+            }
+            
+            if (gameState.isBonusGame && totalWin > 0) {
+                totalWin = applyBonusMultipliers(totalWin);
+            }
+            
+            if (!gameState.isBonusGame) {
+                var scatterCount = countScatterSymbols();
+                if (scatterCount >= 3) {
+                    var scatterWin = 5;
+                    totalWin += scatterWin;
+                    
+                    awardFreeSpins(12);
+                    
+                    for (var i = 0; i < gameState.reels.length; i++) {
+                        if (gameState.reels[i].dataset.symbolId === 'bonus') {
+                            if (gameState.winningSymbols.indexOf(i) === -1) {
+                                gameState.winningSymbols.push(i);
+                            }
+                        }
+                    }
+                }
+            }
+            
+            gameState.currentWin = totalWin * gameState.currentBet;
+            
+            var maxWinAmount = gameState.currentBet * 20000;
+            if (gameState.currentWin > maxWinAmount) {
+                gameState.currentWin = maxWinAmount;
+            }
+            
+            if (gameState.currentWin > 0) {
+                gameState.balance += gameState.currentWin;
+                gameState.totalWins++;
+                
+                if (gameState.currentWin > gameState.biggestWin) {
+                    gameState.biggestWin = gameState.currentWin;
+                }
+                
+                if (gameState.isBonusGame) {
+                    gameState.bonusTotalWin += gameState.currentWin;
+                }
+                
+                playSound('win');
+                highlightWinningSymbols();
+                createWinAnimation();
+                showLightningAndStars();
+            }
+            
+            updateDisplay();
+        }
+        
+        function checkLineWin(lineSymbols, linePositions) {
+            var count = 1;
+            var firstSymbol = lineSymbols[0];
+            
+            for (var i = 0; i < lineSymbols.length; i++) {
+                if (lineSymbols[i] === 'bonus') {
+                    return { win: 0, count: 0, symbol: null };
+                }
+            }
+            
+            if (gameState.isBonusGame && (firstSymbol === 'symbol_2x' || firstSymbol === 'symbol_3x')) {
+                for (var i = 1; i < lineSymbols.length; i++) {
+                    if (lineSymbols[i] !== 'symbol_2x' && lineSymbols[i] !== 'symbol_3x') {
+                        firstSymbol = lineSymbols[i];
+                        break;
+                    }
+                }
+                
+                if (firstSymbol === 'symbol_2x' || firstSymbol === 'symbol_3x') {
+                    firstSymbol = 'dog1';
+                }
+            }
+            
+            for (var i = 1; i < lineSymbols.length; i++) {
+                var currentSymbol = lineSymbols[i];
+                
+                if (currentSymbol === firstSymbol || 
+                    (gameState.isBonusGame && (currentSymbol === 'symbol_2x' || currentSymbol === 'symbol_3x'))) {
+                    count++;
+                } else {
+                    break;
+                }
+            }
+            
+            if (count >= 3) {
+                for (var j = 0; j < gameState.symbols.length; j++) {
+                    if (gameState.symbols[j].id === firstSymbol && gameState.symbols[j].multiplier && Array.isArray(gameState.symbols[j].multiplier)) {
+                        var baseWin = gameState.symbols[j].multiplier[count - 1] || 0;
+                        return { win: baseWin, count: count, symbol: firstSymbol };
+                    }
+                }
+            }
+            
+            return { win: 0, count: 0, symbol: null };
+        }
+        
+        function applyStickyMultipliers() {
+            for (var position in gameState.stickyMultipliers) {
+                var pos = parseInt(position);
+                if (gameState.reels[pos]) {
+                    var symbolId = gameState.stickyMultipliers[position];
+                    for (var i = 0; i < gameState.symbols.length; i++) {
+                        if (gameState.symbols[i].id === symbolId) {
+                            gameState.reels[pos].style.backgroundImage = 'url(' + gameState.symbols[i].image + ')';
+                            gameState.reels[pos].dataset.symbolId = symbolId;
+                            gameState.reels[pos].classList.add('sticky-multiplier');
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        
+        function checkForNewStickyMultipliers() {
+            var bonusPositions = [1, 6, 11, 2, 7, 12, 3, 8, 13];
+            
+            for (var i = 0; i < bonusPositions.length; i++) {
+                var pos = bonusPositions[i];
+                var cell = gameState.reels[pos];
+                if (cell && (cell.dataset.symbolId === 'symbol_2x' || cell.dataset.symbolId === 'symbol_3x')) {
+                    gameState.stickyMultipliers[pos] = cell.dataset.symbolId;
+                    cell.classList.add('sticky-multiplier');
+                }
+            }
+        }
+        
+        function applyBonusMultipliers(baseWin) {
+            var finalMultiplier = 1;
+            
+            for (var position in gameState.stickyMultipliers) {
+                var symbolId = gameState.stickyMultipliers[position];
+                for (var i = 0; i < gameState.symbols.length; i++) {
+                    if (gameState.symbols[i].id === symbolId && gameState.symbols[i].isMultiplier) {
+                        finalMultiplier *= gameState.symbols[i].multiplier;
+                        break;
+                    }
+                }
+            }
+            
+            if (finalMultiplier > 20) finalMultiplier = 20;
+            
+            return baseWin * finalMultiplier;
+        }
+        
+        function countScatterSymbols() {
+            var count = 0;
+            for (var i = 0; i < gameState.reels.length; i++) {
+                if (gameState.reels[i].dataset.symbolId === 'bonus') {
+                    count++;
+                }
+            }
+            return count;
+        }
+        
+        function highlightWinningSymbols() {
+            for (var i = 0; i < gameState.winningSymbols.length; i++) {
+                var index = gameState.winningSymbols[i];
+                gameState.reels[index].classList.add('winning-symbol');
+                (function(idx) {
+                    setTimeout(function() {
+                        gameState.reels[idx].classList.remove('winning-symbol');
+                    }, 3000);
+                })(index);
+            }
+        }
+        
+        function awardFreeSpins(count) {
+            gameState.freeSpins = count;
+            document.getElementById('bonus-intro-modal').style.display = 'flex';
+            playSound('win');
+        }
+        
+        function startBonusGame() {
+            document.getElementById('bonus-intro-modal').style.display = 'none';
+            
+            gameState.isBonusGame = true;
+            gameState.freeSpins = 12;
+            gameState.stickyMultipliers = {};
+            gameState.bonusTotalWin = 0;
+            
+            highlightBonusReels();
+            updateDisplay();
+            
+            setTimeout(spin, 1000);
+        }
+        
+        function highlightBonusReels() {
+            var bonusColumns = [1, 2, 3];
+            for (var col = 0; col < bonusColumns.length; col++) {
+                for (var row = 0; row < 3; row++) {
+                    var cellIndex = row * 5 + bonusColumns[col];
+                    var cell = gameState.reels[cellIndex];
+                    if (cell && !cell.querySelector('.bonus-reel-highlight')) {
+                        var highlight = document.createElement('div');
+                        highlight.className = 'bonus-reel-highlight';
+                        cell.appendChild(highlight);
+                    }
+                }
+            }
+        }
+        
+        function removeBonusHighlight() {
+            var highlights = document.querySelectorAll('.bonus-reel-highlight');
+            for (var i = 0; i < highlights.length; i++) {
+                highlights[i].remove();
+            }
+        }
+        
+        function endBonusGame() {
+            document.getElementById('bonus-total-win').textContent = gameState.bonusTotalWin.toFixed(2);
+            document.getElementById('bonus-result-modal').style.display = 'flex';
+            
+            gameState.isBonusGame = false;
+            gameState.stickyMultipliers = {};
+            
+            var stickyElements = document.querySelectorAll('.sticky-multiplier');
+            for (var i = 0; i < stickyElements.length; i++) {
+                stickyElements[i].classList.remove('sticky-multiplier');
+            }
+            
+            removeBonusHighlight();
+            
+            for (var i = 0; i < 15; i++) {
+                var symbol = getRandomSymbol(i);
+                gameState.reels[i].style.backgroundImage = 'url(' + symbol.image + ')';
+                gameState.reels[i].dataset.symbolId = symbol.id;
+            }
+            
+            updateDisplay();
+        }
+        
+        function closeBonusResult() {
+            document.getElementById('bonus-result-modal').style.display = 'none';
+        }
+        
+        function closeBonus() {
+            document.getElementById('bonus-modal').style.display = 'none';
+            startBonusGame();
+        }
+        
+        function createWinAnimation() {
+            var winElement = document.getElementById('win-amount');
+            winElement.style.animation = 'winSymbolPulse 0.8s ease-in-out 4';
+            setTimeout(function() {
+                winElement.style.animation = '';
+            }, 3200);
+        }
+        
+        function showLightningAndStars() {
+            var explosion = document.getElementById('win-explosion');
+            
+            for (var i = 0; i < 8; i++) {
+                (function(index) {
+                    setTimeout(function() {
+                        var lightning = document.createElement('div');
+                        lightning.className = 'lightning';
+                        lightning.style.left = (30 + Math.random() * 40) + '%';
+                        lightning.style.top = (20 + Math.random() * 30) + '%';
+                        lightning.style.transform = 'rotate(' + (Math.random() * 60 - 30) + 'deg)';
+                        explosion.appendChild(lightning);
+                        
+                        setTimeout(function() {
+                            lightning.remove();
+                        }, 2000);
+                    }, index * 100);
+                })(i);
+            }
+            
+            for (var i = 0; i < 12; i++) {
+                (function(index) {
+                    setTimeout(function() {
+                        var star = document.createElement('div');
+                        star.className = 'star';
+                        star.style.left = (20 + Math.random() * 60) + '%';
+                        star.style.top = (20 + Math.random() * 60) + '%';
+                        star.style.animationDelay = (Math.random() * 0.5) + 's';
+                        explosion.appendChild(star);
+                        
+                        setTimeout(function() {
+                            star.remove();
+                        }, 2500);
+                    }, index * 120);
+                })(i);
+            }
+        }
+        
+        function clearWinEffects() {
+            for (var i = 0; i < gameState.reels.length; i++) {
+                gameState.reels[i].classList.remove('winning-symbol');
+            }
+            
+            var explosion = document.getElementById('win-explosion');
+            explosion.innerHTML = '';
+            gameState.winningSymbols = [];
+        }
+        
+        function toggleAuto() {
+            if (gameState.totalAutoSpins === 0 && !gameState.isAutoMode) {
+                showMessage('Спочатку встановіть кількість авто-спінів у налаштуваннях!', 'error');
+                return;
+            }
+            
+            gameState.isAutoMode = !gameState.isAutoMode;
+            var autoBtn = document.getElementById('auto-btn');
+            
+            if (gameState.isAutoMode) {
+                gameState.autoSpinsLeft = gameState.totalAutoSpins;
+                autoBtn.classList.add('active');
+                if (!gameState.isSpinning) {
+                    spin();
+                }
+            } else {
+                gameState.autoSpinsLeft = 0;
+                autoBtn.classList.remove('active');
+            }
+            
+            updateDisplay();
+        }
+        
+        // ========= НАЛАШТУВАННЯ ТА МОДАЛЬНІ ВІКНА =========
+        
+        function showSettings() {
+            document.getElementById('bet-slider').value = gameState.currentBet;
+            document.getElementById('bet-display').textContent = gameState.currentBet.toFixed(2);
+            document.getElementById('auto-spins-slider').value = gameState.totalAutoSpins;
+            document.getElementById('auto-spins-display').textContent = gameState.totalAutoSpins;
+            document.getElementById('bonus-price').textContent = (gameState.currentBet * 100).toFixed(2);
+            
+            document.getElementById('settings-modal').style.display = 'flex';
+        }
+        
+        function closeSettings() {
+            document.getElementById('settings-modal').style.display = 'none';
+        }
+        
+        function updateBet(value) {
+            gameState.currentBet = parseFloat(value);
+            document.getElementById('bet-display').textContent = gameState.currentBet.toFixed(2);
+            document.getElementById('bonus-price').textContent = (gameState.currentBet * 100).toFixed(2);
+            updateDisplay();
+        }
+        
+        function updateAutoSpins(value) {
+            gameState.totalAutoSpins = parseInt(value);
+            document.getElementById('auto-spins-display').textContent = gameState.totalAutoSpins;
+        }
+        
+        function toggleMusic() {
+            gameState.musicEnabled = !gameState.musicEnabled;
+            var btn = document.getElementById('music-toggle-btn');
+            
+            if (gameState.musicEnabled) {
+                btn.textContent = 'MUSIC ON';
+                btn.classList.remove('music-off');
+                if (gameState.soundEnabled && sounds.main) {
+                    sounds.main.play().catch(function(e) {
+                        console.log('Помилка фонової музики:', e);
+                    });
+                }
+            } else {
+                btn.textContent = 'MUSIC OFF';
+                btn.classList.add('music-off');
+                if (sounds.main) {
+                    sounds.main.pause();
+                }
+            }
+        }
+        
+        function buyBonus() {
+            var bonusPrice = gameState.currentBet * 100;
+            
+            if (gameState.balance >= bonusPrice) {
+                gameState.balance -= bonusPrice;
+                updateDisplay();
+                closeSettings();
+                
+                document.getElementById('bonus-intro-modal').style.display = 'flex';
+                playSound('win');
+            } else {
+                showMessage('Недостатньо коштів для покупки бонусів!', 'error');
+            }
+        }
+        
+        // ========= ПРАВИЛА ГРИ =========
+        
+        function showRules() {
+            gameState.currentRulePage = 0;
+            updateRulesDisplay();
+            document.getElementById('rules-modal').style.display = 'flex';
+        }
+        
+        function closeRules() {
+            document.getElementById('rules-modal').style.display = 'none';
+        }
+        
+        function nextRule() {
+            if (gameState.currentRulePage < gameState.rulesImages.length - 1) {
+                gameState.currentRulePage++;
+                updateRulesDisplay();
+            }
+        }
+        
+        function prevRule() {
+            if (gameState.currentRulePage > 0) {
+                gameState.currentRulePage--;
+                updateRulesDisplay();
+            }
+        }
+        
+        function updateRulesDisplay() {
+            var rulesImage = document.getElementById('rules-image');
+            rulesImage.src = gameState.rulesImages[gameState.currentRulePage];
+            
+            document.getElementById('current-page').textContent = gameState.currentRulePage + 1;
+            document.getElementById('total-pages').textContent = gameState.rulesImages.length;
+            
+            var prevBtn = document.getElementById('prev-rule');
+            var nextBtn = document.getElementById('next-rule');
+            
+            prevBtn.disabled = gameState.currentRulePage === 0;
+            nextBtn.disabled = gameState.currentRulePage === gameState.rulesImages.length - 1;
+        }
+        
+        // ========= ДЕПОЗИТИ =========
+        
+        function showDeposit() {
+            if (gameState.depositCooldown > Date.now()) {
+                var remainingTime = Math.ceil((gameState.depositCooldown - Date.now()) / 1000);
+                var minutes = Math.floor(remainingTime / 60);
+                var seconds = remainingTime % 60;
+                showMessage('Наступний депозит через ' + minutes + ':' + seconds.toString().padStart(2, '0'), 'error');
+                return;
+            }
+            
+            document.getElementById('deposit-modal').style.display = 'flex';
+            document.getElementById('deposit-amount').value = '';
+            document.getElementById('deposit-amount').focus();
+            
+            updateDepositModalState();
+        }
+        
+        function closeDeposit() {
+            document.getElementById('deposit-modal').style.display = 'none';
+        }
+        
+        function processDeposit() {
+            var depositInput = document.getElementById('deposit-amount');
+            var amount = parseFloat(depositInput.value);
+            
+            if (!amount || amount <= 0) {
+                showMessage('Введіть правильну суму депозиту!', 'error');
+                return;
+            }
+            
+            if (amount > 10000) {
+                showMessage('Вовна скіки не заробляє!', 'error');
+                return;
+            }
+            
+            gameState.balance += amount;
+            updateDisplay();
+            
+            gameState.depositCooldown = Date.now() + gameState.cooldownDuration;
+            
+            closeDeposit();
+            showMessage('Депозит ' + amount.toFixed(2) + '₴ успішно поповнено!', 'success');
+            
+            startCooldownTimer();
+        }
+        
+        function updateDepositModalState() {
+            var remaining = gameState.depositCooldown - Date.now();
+            var cooldownElement = document.getElementById('deposit-cooldown');
+            var confirmBtn = document.getElementById('confirm-deposit');
+            
+            if (remaining > 0) {
+                cooldownElement.style.display = 'block';
+                confirmBtn.disabled = true;
+                startCooldownTimer();
+            } else {
+                cooldownElement.style.display = 'none';
+                confirmBtn.disabled = false;
+            }
+        }
+        
+        function startCooldownTimer() {
+            if (gameState.cooldownTimer) {
+                clearInterval(gameState.cooldownTimer);
+            }
+            
+            gameState.cooldownTimer = setInterval(function() {
+                var remaining = gameState.depositCooldown - Date.now();
+                
+                if (remaining <= 0) {
+                    clearInterval(gameState.cooldownTimer);
+                    gameState.cooldownTimer = null;
+                    return;
+                }
+                
+                var cooldownElement = document.getElementById('deposit-cooldown');
+                var timerElement = document.getElementById('cooldown-timer');
+                
+                if (cooldownElement && timerElement) {
+                    var seconds = Math.ceil(remaining / 1000);
+                    var minutes = Math.floor(seconds / 60);
+                    var remainingSeconds = seconds % 60;
+                    
+                    timerElement.textContent = minutes + ':' + remainingSeconds.toString().padStart(2, '0');
+                    
+                    if (remaining > 0) {
+                        cooldownElement.style.display = 'block';
+                        document.getElementById('confirm-deposit').disabled = true;
+                    } else {
+                        cooldownElement.style.display = 'none';
+                        document.getElementById('confirm-deposit').disabled = false;
+                    }
+                }
+            }, 1000);
+        }
+        
+        // ========= ДОПОМІЖНІ ФУНКЦІЇ =========
+        
+        function showMessage(text, type) {
+            var messageArea = document.getElementById('message-area');
+            messageArea.textContent = text;
+            messageArea.className = 'message-area show ' + (type || 'info');
+            
+            setTimeout(function() {
+                messageArea.classList.remove('show');
+            }, 3000);
+        }
+        
+        function initSounds() {
+            try {
+                sounds.main = new Audio('sounds/Song_main.mp3');
+                sounds.spin = new Audio('sounds/zanos.mp3');
+                sounds.win = new Audio('sounds/song_bonus.mp3');
+                
+                sounds.main.loop = true;
+                sounds.main.volume = 0.3;
+                
+                if (gameState.soundEnabled && gameState.musicEnabled) {
+                    sounds.main.play().catch(function(e) {
+                        console.log('Помилка запуску музики:', e);
+                    });
+                }
+            } catch (e) {
+                console.log('Помилка ініціалізації звуків:', e);
+            }
+        }
+        
+        function playSound(soundName) {
+            if (!gameState.soundEnabled) return;
+            
+            if (sounds[soundName]) {
+                sounds[soundName].currentTime = 0;
+                sounds[soundName].play().catch(function(e) {
+                    console.log('Помилка відтворення звуку:', e);
+                });
+            }
+        }
+        
+        function updateDisplay() {
+            document.getElementById('balance').textContent = gameState.balance.toFixed(2);
+            document.getElementById('bet-amount').textContent = gameState.currentBet.toFixed(2);
+            
+            // ВИПРАВЛЕННЯ: В бонусній грі показуємо накопичений виграш
+            if (gameState.isBonusGame) {
+                document.getElementById('win-amount').textContent = gameState.bonusTotalWin.toFixed(2);
+            } else {
+                document.getElementById('win-amount').textContent = gameState.currentWin.toFixed(2);
+            }
+            
+            if (gameState.freeSpins > 0) {
+                document.getElementById('free-spins-info').style.display = 'block';
+                if (gameState.isBonusGame) {
+                    document.getElementById('free-spins').textContent = 'Бонус: ' + gameState.freeSpins;
+                } else {
+                    document.getElementById('free-spins').textContent = gameState.freeSpins;
+                }
+            } else if (gameState.isAutoMode && gameState.autoSpinsLeft > 0) {
+                document.getElementById('free-spins-info').style.display = 'block';
+                document.getElementById('free-spins').textContent = 'Авто: ' + gameState.autoSpinsLeft;
+            } else {
+                document.getElementById('free-spins-info').style.display = 'none';
+            }
+        }
+        
+        // ========= ЗБЕРЕЖЕННЯ ТА ЗАВАНТАЖЕННЯ ПРОГРЕСУ =========
+        
+        function saveGameState() {
+            if (currentUser && currentUser.isDemo) return;
+            
+            var state = {
+                balance: gameState.balance,
+                currentBet: gameState.currentBet,
+                freeSpins: gameState.freeSpins,
+                totalSpins: gameState.totalSpins,
+                totalWins: gameState.totalWins,
+                biggestWin: gameState.biggestWin,
+                totalWagered: gameState.totalWagered,
+                achievements: gameState.achievements,
+                lastPlayed: new Date().toISOString()
+            };
+            
+            if (currentUser) {
+                localStorage.setItem('nau_game_' + currentUser.email, JSON.stringify(state));
+            }
+        }
+        
+        function loadGameState() {
+            if (currentUser && currentUser.isDemo) return;
+            
+            if (currentUser) {
+                var saved = localStorage.getItem('nau_game_' + currentUser.email);
+                if (saved) {
+                    try {
+                        var state = JSON.parse(saved);
+                        gameState.balance = state.balance || gameState.balance;
+                        gameState.currentBet = state.currentBet || gameState.currentBet;
+                        gameState.freeSpins = state.freeSpins || 0;
+                        gameState.totalSpins = state.totalSpins || 0;
+                        gameState.totalWins = state.totalWins || 0;
+                        gameState.biggestWin = state.biggestWin || 0;
+                        gameState.totalWagered = state.totalWagered || 0;
+                        gameState.achievements = state.achievements || {};
+                    } catch (e) {
+                        console.log('Помилка завантаження стану гри:', e);
+                    }
+                }
+            }
+        }
+        
+        // ========= ДОДАТКОВІ ФУНКЦІЇ ГЕЙМПЛЕЮ =========
+        
+        function checkAchievements() {
+            var newAchievements = [];
+            
+            if (gameState.totalSpins >= 100 && !gameState.achievements.spins100) {
+                gameState.achievements.spins100 = true;
+                newAchievements.push('100 спінів виконано!');
+            }
+            
+            if (gameState.totalSpins >= 500 && !gameState.achievements.spins500) {
+                gameState.achievements.spins500 = true;
+                newAchievements.push('500 спінів - ви справжній гравець!');
+            }
+            
+            if (gameState.totalSpins >= 1000 && !gameState.achievements.spins1000) {
+                gameState.achievements.spins1000 = true;
+                newAchievements.push('1000 спінів - легенда казино!');
+            }
+            
+            if (gameState.currentWin >= gameState.currentBet * 50 && !gameState.achievements.bigWin50x) {
+                gameState.achievements.bigWin50x = true;
+                newAchievements.push('Мега виграш x50!');
+            }
+            
+            if (gameState.currentWin >= gameState.currentBet * 100 && !gameState.achievements.bigWin100x) {
+                gameState.achievements.bigWin100x = true;
+                newAchievements.push('Супер виграш x100!');
+            }
+            
+            if (gameState.balance >= 10000 && !gameState.achievements.balance10k) {
+                gameState.achievements.balance10k = true;
+                newAchievements.push('Багатій на 10,000₴!');
+            }
+            
+            for (var i = 0; i < newAchievements.length; i++) {
+                setTimeout((function(msg) {
+                    return function() {
+                        showMessage('🏆 ' + msg, 'success');
+                    };
+                })(newAchievements[i]), i * 2000);
+            }
+        }
+        
+        function autoSave() {
+            if (currentUser && !currentUser.isDemo) {
+                saveGameState();
+                
+                if (users[currentUser.email]) {
+                    users[currentUser.email].balance = gameState.balance;
+                    localStorage.setItem('nauSlotUsers', JSON.stringify(users));
+                }
+            }
+        }
+        
+        function checkResponsibleGaming() {
+            var now = Date.now();
+            var sessionStart = localStorage.getItem('sessionStart') || now;
+            var sessionTime = now - sessionStart;
+            
+            if (sessionTime > 2 * 60 * 60 * 1000) {
+                showMessage('Ви граєте вже більше 2 годин. Зробіть перерву!', 'error');
+                localStorage.setItem('sessionStart', now.toString());
+            }
+            
+            if (gameState.balance < 500 && currentUser && !currentUser.isDemo) {
+                showMessage('Ваш баланс менший за 500₴. Грайте відповідально!', 'error');
+            }
+        }
+        
+        function calculateRTP() {
+            if (gameState.totalWagered === 0) return 0;
+            var totalReturned = gameState.balance - 1000 + gameState.totalWagered;
+            return (totalReturned / gameState.totalWagered) * 100;
+        }
+        
+        function generateGameReport() {
+            if (!currentUser || currentUser.isDemo) return null;
+            
+            var report = {
+                player: currentUser.username,
+                email: currentUser.email,
+                currentBalance: gameState.balance,
+                totalSpins: gameState.totalSpins,
+                totalWins: gameState.totalWins,
+                totalWagered: gameState.totalWagered,
+                biggestWin: gameState.biggestWin,
+                winRate: gameState.totalSpins > 0 ? ((gameState.totalWins / gameState.totalSpins) * 100).toFixed(2) + '%' : '0%',
+                achievements: Object.keys(gameState.achievements).length,
+                playTime: new Date().toISOString(),
+                rtp: gameState.totalWagered > 0 ? (((gameState.balance - 1000 + gameState.totalWagered) / gameState.totalWagered) * 100).toFixed(2) + '%' : '0%'
+            };
+            
+            return report;
+        }
+        
+        // ========= ІНІЦІАЛІЗАЦІЯ ПРИ ЗАВАНТАЖЕННІ =========
+        window.onload = function() {
+            console.log('===== NAU SLOT GAME STARTED =====');
+            console.log('Гра завантажена успішно');
+            console.log('Версія: 4.0 - Повна версія з адмін панеллю та виправленнями');
+            console.log('Загальна кількість рядків коду: 3500+');
+            console.log('==================================');
+            
+            if (!localStorage.getItem('sessionStart')) {
+                localStorage.setItem('sessionStart', Date.now().toString());
+            }
+            
+            loadUsers();
+            addAdminButton();
+            
+            var savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                try {
+                    var user = JSON.parse(savedUser);
+                    console.log('Знайдено збережену сесію для:', user.username);
+                    
+                    if (!user.isDemo && users[user.email]) {
+                        user.balance = users[user.email].balance;
+                    }
+                    
+                    currentUser = user;
+                    startGame(user);
+                } catch (e) {
+                    console.log('Помилка відновлення сесії:', e);
+                    localStorage.removeItem('currentUser');
+                }
+            } else {
+                console.log('Збережена сесія не знайдена, показуємо форму входу');
+            }
+            
+            setInterval(function() {
+                autoSave();
+                checkResponsibleGaming();
+            }, 30000);
+            
+            window.addEventListener('beforeunload', function() {
+                autoSave();
+            });
+            
+            document.addEventListener('error', function(e) {
+                if (e.target.tagName === 'IMG' || (e.target.style && e.target.style.backgroundImage)) {
+                    console.log('Помилка завантаження ресурсу:', e.target.src || e.target.style.backgroundImage);
+                }
+            }, true);
+            
+            window.addEventListener('online', function() {
+                showMessage('Інтернет з\'єднання відновлено!', 'success');
+            });
+            
+            window.addEventListener('offline', function() {
+                showMessage('Втрачено інтернет з\'єднання!', 'error');
+            });
+            
+            console.log('Повна ініціалізація завершена. Гра готова до використання.');
+            console.log('🔧 Адмін доступ: кнопка ⚙ внизу зліва');
+            console.log('📊 Дані адміна: admin / nau2025admin');
+            console.log('🎮 Доступні режими: звичайна гра, бонуси, авто-спіни');
+            console.log('💾 Автозбереження активне');
+        };
+        
+        window.addEventListener('error', function(e) {
+            console.error('Глобальна помилка:', e.error);
+        });
+        
+        window.addEventListener('unhandledrejection', function(e) {
+            console.error('Необроблене відхилення Promise:', e.reason);
+            e.preventDefault();
+        });
+        
+        console.log('NAU SLOT GAME - Готовий до запуску!');
+        console.log('Повний функціонал: 3500+ рядків коду');
+        console.log('Адмін система з покращеним доступом');
+        console.log('Виправлено накопичувальний виграш у бонусній грі');
+    </script>
+</body>
+</html>
