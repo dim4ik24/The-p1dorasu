@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NAU - The Pidorasu Slot</title>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -1539,6 +1539,267 @@
                 height: 80px;
             }
         }
+        /* Адаптивність для планшетів */
+@media (max-width: 1024px) {
+    .slot-logo {
+        width: 400px;
+        height: 150px;
+    }
+    
+    .reels-container {
+        grid-template-columns: repeat(5, 110px);
+        grid-template-rows: repeat(3, 110px);
+        width: 590px;
+        height: 380px;
+        padding: 20px;
+    }
+    
+    .reel-cell {
+        width: 110px;
+        height: 110px;
+    }
+    
+    .control-btn {
+        width: 75px;
+        height: 75px;
+    }
+}
+
+/* Адаптивність для смартфонів */
+@media (max-width: 768px) {
+    body {
+        overflow-y: auto;
+    }
+    
+    .slot-machine {
+        min-width: 95vw;
+        padding: 5px;
+        transform: translate(-50%, -50%) scale(0.95);
+    }
+    
+    .slot-logo {
+        width: 280px;
+        height: 100px;
+        top: 10px;
+    }
+    
+    .reels-container {
+        grid-template-columns: repeat(5, 85px);
+        grid-template-rows: repeat(3, 85px);
+        gap: 3px;
+        width: 450px;
+        height: 300px;
+        padding: 15px;
+        background-size: 140% 145%;
+    }
+    
+    .reel-cell {
+        width: 85px;
+        height: 85px;
+        border: 2px solid #FFD700;
+    }
+    
+    .controls {
+        flex-direction: column;
+        gap: 10px;
+        padding: 10px;
+    }
+    
+    .info-panel {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        width: 100%;
+        font-size: 12px;
+        gap: 5px;
+    }
+    
+    .control-btn {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .message-area {
+        font-size: 14px;
+        padding: 10px;
+    }
+    
+    /* Приховуємо декорації */
+    .city-background,
+    .flying-plane,
+    .explosion,
+    .explosion-2 {
+        display: none;
+    }
+    
+    .cloud {
+        width: 50px;
+        height: 25px;
+    }
+    
+    /* Модальні вікна */
+    .auth-content {
+        width: 95%;
+        padding: 20px;
+    }
+    
+    .auth-content h2 {
+        font-size: 22px;
+    }
+    
+    .warning-box {
+        font-size: 12px;
+    }
+    
+    .settings-content {
+        min-width: 95%;
+        padding: 20px;
+    }
+    
+    .settings-content h2 {
+        font-size: 22px;
+    }
+    
+    .settings-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .slider-container {
+        width: 100%;
+    }
+    
+    .settings-btn {
+        width: 100%;
+        min-width: auto;
+    }
+    
+    .rules-content {
+        width: 95%;
+        height: 95%;
+        max-width: none;
+        max-height: none;
+    }
+    
+    .rules-title {
+        font-size: 20px;
+    }
+    
+    .nav-btn {
+        padding: 8px 15px;
+        font-size: 12px;
+        min-width: 80px;
+    }
+    
+    .page-indicator {
+        font-size: 14px;
+    }
+    
+    .bonus-intro-content {
+        width: 90%;
+        height: 60%;
+        padding-bottom: 50px;
+    }
+    
+    .bonus-continue-btn {
+        padding: 15px 30px;
+        font-size: 18px;
+    }
+    
+    .bonus-result-content {
+        width: 90%;
+        height: 60%;
+        padding: 30px;
+    }
+    
+    .bonus-result-text {
+        font-size: 24px;
+    }
+    
+    .bonus-result-amount {
+        font-size: 36px;
+    }
+    
+    .deposit-content {
+        min-width: 95%;
+        padding: 25px;
+    }
+    
+    .deposit-input {
+        width: 150px;
+        font-size: 20px;
+    }
+    
+    .admin-content {
+        width: 98%;
+        padding: 15px;
+        font-size: 13px;
+    }
+    
+    .users-table {
+        font-size: 11px;
+    }
+    
+    .users-table th,
+    .users-table td {
+        padding: 6px;
+    }
+    
+    .user-panel {
+        top: 5px;
+        right: 5px;
+        padding: 5px 10px;
+        font-size: 12px;
+    }
+    
+    .logout-btn {
+        padding: 5px 10px;
+        font-size: 11px;
+    }
+}
+
+/* Дуже маленькі екрани */
+@media (max-width: 480px) {
+    .slot-machine {
+        transform: translate(-50%, -50%) scale(0.85);
+    }
+    
+    .reels-container {
+        grid-template-columns: repeat(5, 70px);
+        grid-template-rows: repeat(3, 70px);
+        width: 370px;
+        height: 250px;
+        padding: 12px;
+    }
+    
+    .reel-cell {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .slot-logo {
+        width: 220px;
+        height: 80px;
+    }
+    
+    .control-btn {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .info-panel {
+        font-size: 11px;
+    }
+    
+    .auth-content {
+        padding: 15px;
+    }
+    
+    .bonus-continue-btn {
+        padding: 12px 25px;
+        font-size: 16px;
+    }
+}
     </style>
 </head>
 <body>
