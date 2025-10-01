@@ -16,13 +16,29 @@
             box-sizing: border-box;
         }
 
-        body {
-            font-family: 'Arial', sans-serif;
-            overflow: hidden;
-            user-select: none;
-            height: 100vh;
-            background: linear-gradient(to bottom, #4FC3F7 0%, #29B6F6 40%, #4CAF50 40%, #388E3C 100%);
-        }
+    body {
+    font-family: 'Arial', sans-serif;
+    overflow: hidden;
+    user-select: none;
+    height: 100vh;
+    background: linear-gradient(to bottom, #4FC3F7 0%, #29B6F6 40%, #4CAF50 40%, #388E3C 100%);
+}
+
+/* Дозволяємо скрол на мобільних */
+@media (max-width: 768px) {
+    body {
+        overflow-x: hidden;
+        height: auto;
+        min-height: 100vh;
+    }
+    
+    .game-container {
+        height: auto;
+        min-height: 100vh;
+        overflow: visible;
+        padding-bottom: 50px;
+    }
+}
 
         /* Loading */
         .loading-overlay {
