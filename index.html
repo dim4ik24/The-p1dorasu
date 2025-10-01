@@ -3074,18 +3074,34 @@
         }
         
         function updateRulesDisplay() {
-            var rulesImage = document.getElementById('rules-image');
-            rulesImage.src = gameState.rulesImages[gameState.currentRulePage];
-            
-            document.getElementById('current-page').textContent = gameState.currentRulePage + 1;
-            document.getElementById('total-pages').textContent = gameState.rulesImages.length;
-            
-            var prevBtn = document.getElementById('prev-rule');
-            var nextBtn = document.getElementById('next-rule');
-            
-            prevBtn.disabled = gameState.currentRulePage === 0;
-            nextBtn.disabled = gameState.currentRulePage === gameState.rulesImages.length - 1;
-        }
+    var rulesImage = document.getElementById('rules-image');
+    
+    // Debug log
+    console.log('Current page:', gameState.currentRulePage);
+    console.log('Image path:', gameState.rulesImages[gameState.currentRulePage]);
+    
+    // Додаємо timestamp для скидання кешу
+    rulesImage.src = gameState.rulesImages[gameState.currentRulePage] + '?t=' + new Date().getTime();
+    
+    // Перевірка завантаження
+    rulesImage.onerror = function() {
+        console.error('Помилка завантаження:', rulesImage.src);
+        alert('Не вдалося завантажити: ' + gameState.rulesImages[gameState.currentRulePage]);
+    };
+    
+    rulesImage.onload = function() {
+        console.log('Зображення завантажено успішно');
+    };
+    
+    document.getElementById('current-page').textContent = gameState.currentRulePage + 1;
+    document.getElementById('total-pages').textContent = gameState.rulesImages.length;
+    
+    var prevBtn = document.getElementById('prev-rule');
+    var nextBtn = document.getElementById('next-rule');
+    
+    prevBtn.disabled = gameState.currentRulePage === 0;
+    nextBtn.disabled = gameState.currentRulePage === gameState.rulesImages.length - 1;
+}
         
         function showDeposit() {
             if (gameState.depositCooldown > Date.now()) {
