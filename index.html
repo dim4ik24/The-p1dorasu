@@ -114,7 +114,6 @@
         overflow: visible;
         padding-bottom: 50px;
     }
-}
 
         /* Loading */
         .loading-overlay {
@@ -2283,13 +2282,12 @@
         }
         
         function doRegister(event) {
-            event.preventDefault();
-            
-            var username = document.getElementById('register-username').value.trim();
-            var email = document.getElementById('register-email').value.trim();
-            var email = document.getElementById('register-email').value.trim().toLowerCase();
-            var password = document.getElementById('register-password').value;
-            var passwordConfirm = document.getElementById('register-password-confirm').value;
+    event.preventDefault();
+    
+    var username = document.getElementById('register-username').value.trim();
+    var email = document.getElementById('register-email').value.trim().toLowerCase(); // ТІЛЬКИ ОДИН РАЗ
+    var password = document.getElementById('register-password').value;
+    var passwordConfirm = document.getElementById('register-password-confirm').value;
             var ageConfirmed = document.getElementById('register-age').checked;
             
             var errorEl = document.getElementById('register-error');
@@ -2352,80 +2350,80 @@
             return false;
         }
         
-        function doLogin(event) {
-            event.preventDefault();
+   function doLogin(event) {
+    event.preventDefault();
+    
+    var emailOrUsername = document.getElementById('login-email').value.trim().toLowerCase();
+    var password = document.getElementById('login-password').value;
+    var ageConfirmed = document.getElementById('login-age').checked;
+    
+    var errorEl = document.getElementById('login-error');
+    errorEl.style.display = 'none';
+    
+    if (!ageConfirmed) {
+        errorEl.textContent = 'Підтвердіть вік';
+        errorEl.style.display = 'block';
+        return false;
+    }
+    
+    // АДМІН ВХІД
+    if (emailOrUsername === 'admin' && password === adminCredentials.password) {
+        isAdminLoggedIn = true;
+        currentUser = { username: 'Admin', isAdmin: true, balance: 999999 };
+        
+        document.getElementById('auth-modal').classList.add('hidden');
+        document.getElementById('game-container').classList.add('active');
+        document.getElementById('user-panel').classList.add('active');
+        document.getElementById('user-name').textContent = 'Admin';
+        
+        showMessage('Вітаємо, Адміністратор!', 'success');
+        initializeGame();
+        initSounds();
+        updateDisplay();
+        return false;
+    }
+    
+    showLoading();
+    
+    usersRef.once('value')
+        .then(function(snapshot) {
+            hideLoading(); // ВАЖЛИВО: завждиховаємо loading
             
-            var emailOrUsername = document.getElementById('login-email').value.trim();
-            var emailOrUsername = document.getElementById('login-email').value.trim().toLowerCase();
-            var password = document.getElementById('login-password').value;
-            var ageConfirmed = document.getElementById('login-age').checked;
+            var usersData = snapshot.val() || {};
+            var user = null;
+            var userKey = null;
             
-            var errorEl = document.getElementById('login-error');
-            errorEl.style.display = 'none';
+            for (var key in usersData) {
+                if (usersData[key].email.toLowerCase() === emailOrUsername || 
+                    usersData[key].username.toLowerCase() === emailOrUsername) {
+                    user = usersData[key];
+                    userKey = key;
+                    break;
+                }
+            }
             
-            if (!ageConfirmed) {
-                errorEl.textContent = 'Підтвердіть вік';
+            if (!user || user.password !== hashPassword(password)) {
+                errorEl.textContent = 'Неправильні дані';
                 errorEl.style.display = 'block';
-                return false;
+                return;
             }
             
-            // АДМІН ВХІД
-            if (emailOrUsername === 'admin' && password === adminCredentials.password) {
-                isAdminLoggedIn = true;
-                currentUser = { username: 'Admin', isAdmin: true, balance: 999999 };
-                
-                document.getElementById('auth-modal').classList.add('hidden');
-                document.getElementById('user-panel').classList.add('active');
-                document.getElementById('user-name').textContent = 'Admin';
-                
-                showMessage('Вітаємо, Адміністратор!', 'success');
-                showAdminPanel();
-                return false;
-            }
-            
-            showLoading();
-            
-            usersRef.once('value')
-                .then(function(snapshot) {
-                    hideLoading();
-                    
-                    var usersData = snapshot.val() || {};
-                    var user = null;
-                    var userKey = null;
-                    
-                    for (var key in usersData) {
-                        if (usersData[key].email === emailOrUsername || 
-                            usersData[key].username === emailOrUsername ||
-                            usersData[key].username.toLowerCase() === emailOrUsername)
-                             {
-                            user = usersData[key];
-                            userKey = key;
-                            break;
-                        }
-                    }
-                    
-                    if (!user || user.password !== hashPassword(password)) {
-                        errorEl.textContent = 'Неправильні дані';
-                        errorEl.style.display = 'block';
-                        return;
-                    }
-                    
-                    return usersRef.child(userKey).update({
-                        lastLogin: new Date().toISOString()
-                    }).then(function() {
-                        currentUser = user;
-                        currentUser.firebaseKey = userKey;
-                        startGame(user);
-                    });
-                })
-                .catch(function(error) {
-                    hideLoading();
-                    errorEl.textContent = 'Помилка входу';
-                    errorEl.style.display = 'block';
-                });
-            
-            return false;
-        }
+            return usersRef.child(userKey).update({
+                lastLogin: new Date().toISOString()
+            }).then(function() {
+                currentUser = user;
+                currentUser.firebaseKey = userKey;
+                startGame(user);
+            });
+        })
+        .catch(function(error) {
+            hideLoading(); // ВАЖЛИВО: ховаємо loading при помилці
+            errorEl.textContent = 'Помилка входу';
+            errorEl.style.display = 'block';
+        });
+    
+    return false;
+}
         
         function startDemo() {
             currentUser = {
