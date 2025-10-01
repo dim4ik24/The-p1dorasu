@@ -2211,6 +2211,7 @@
             
             var username = document.getElementById('register-username').value.trim();
             var email = document.getElementById('register-email').value.trim();
+            var email = document.getElementById('register-email').value.trim().toLowerCase();
             var password = document.getElementById('register-password').value;
             var passwordConfirm = document.getElementById('register-password-confirm').value;
             var ageConfirmed = document.getElementById('register-age').checked;
@@ -2279,6 +2280,7 @@
             event.preventDefault();
             
             var emailOrUsername = document.getElementById('login-email').value.trim();
+            var emailOrUsername = document.getElementById('login-email').value.trim().toLowerCase();
             var password = document.getElementById('login-password').value;
             var ageConfirmed = document.getElementById('login-age').checked;
             
@@ -2317,7 +2319,9 @@
                     
                     for (var key in usersData) {
                         if (usersData[key].email === emailOrUsername || 
-                            usersData[key].username === emailOrUsername) {
+                            usersData[key].username === emailOrUsername ||
+                            usersData[key].username.toLowerCase() === emailOrUsername)
+                             {
                             user = usersData[key];
                             userKey = key;
                             break;
